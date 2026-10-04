@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Linux App Manager
+Comment=Inspect and safely manage software installed from Linux package sources
+Exec=linux-app-manager
+Icon=io.github.linuxappmanager.Lam
+Terminal=false
+Categories=System;
+Keywords=packages;software;applications;flatpak;snap;apt;dnf;pacman;
+StartupNotify=true

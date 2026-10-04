@@ -1,0 +1,14 @@
+pub mod appimage;
+pub mod apt;
+pub mod dnf;
+pub mod flatpak;
+pub mod manual;
+pub mod pacman;
+pub mod snap;
+pub use appimage::AppImageProvider;
+pub use apt::AptProvider;
+pub use dnf::DnfProvider;
+pub use flatpak::FlatpakProvider;
+pub use manual::ManualProvider;
+pub use pacman::PacmanProvider;
+pub use snap::SnapProvider;

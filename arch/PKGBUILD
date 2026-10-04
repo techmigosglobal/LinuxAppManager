@@ -1,0 +1,26 @@
+pkgname=linux-app-manager
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Safe cross-source Linux software manager'
+arch=('x86_64' 'aarch64')
+url='https://replace-before-release.example.org/linux-app-manager'
+license=('GPL-3.0-or-later')
+depends=('python-gobject' 'gtk4' 'libadwaita' 'polkit')
+makedepends=('cargo>=1.90' 'rust>=1.90')
+source=('linux-app-manager::git+https://replace-before-release.example.org/linux-app-manager.git#commit=REPLACE_WITH_TAG_COMMIT')
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/linux-app-manager"
+  cargo build --release --locked --bin lam
+}
+
+package() {
+  cd "$srcdir/linux-app-manager"
+  install -Dm755 target/release/lam "$pkgdir/usr/lib/linux-app-manager/lam"
+  install -Dm755 gui/app.py "$pkgdir/usr/lib/linux-app-manager/app.py"
+  install -Dm755 packaging/linux-app-manager "$pkgdir/usr/bin/linux-app-manager"
+  install -Dm644 packaging/io.github.linuxappmanager.Lam.desktop "$pkgdir/usr/share/applications/io.github.linuxappmanager.Lam.desktop"
+  install -Dm644 packaging/io.github.linuxappmanager.Lam.metainfo.xml "$pkgdir/usr/share/metainfo/io.github.linuxappmanager.Lam.metainfo.xml"
+  install -Dm644 packaging/io.github.linuxappmanager.Lam.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/io.github.linuxappmanager.Lam.svg"
+}

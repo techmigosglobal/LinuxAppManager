@@ -1,0 +1,41 @@
+name: linux-app-manager
+base: core24
+version: '0.1.0'
+summary: Safe cross-source Linux software manager
+description: |
+  Inventory desktop applications and packages from common Linux software
+  sources. Review the provider transaction before making a change.
+grade: devel
+confinement: classic
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+
+parts:
+  linux-app-manager:
+    plugin: rust
+    source: .
+    rust-channel: stable
+    build-packages:
+      - python3-gi
+      - gir1.2-gtk-4.0
+      - gir1.2-adw-1
+    stage-packages:
+      - python3
+      - python3-gi
+      - gir1.2-gtk-4.0
+      - gir1.2-adw-1
+      - libadwaita-1-0
+    override-build: |
+      craftctl default
+      install -Dm755 target/release/lam "$CRAFT_PART_INSTALL/usr/lib/linux-app-manager/lam"
+      install -Dm755 gui/app.py "$CRAFT_PART_INSTALL/usr/lib/linux-app-manager/app.py"
+      install -Dm755 packaging/linux-app-manager "$CRAFT_PART_INSTALL/usr/bin/linux-app-manager"
+      install -Dm644 packaging/io.github.linuxappmanager.Lam.desktop "$CRAFT_PART_INSTALL/usr/share/applications/io.github.linuxappmanager.Lam.desktop"
+      install -Dm644 packaging/io.github.linuxappmanager.Lam.metainfo.xml "$CRAFT_PART_INSTALL/usr/share/metainfo/io.github.linuxappmanager.Lam.metainfo.xml"
+      install -Dm644 packaging/io.github.linuxappmanager.Lam.svg "$CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/io.github.linuxappmanager.Lam.svg"
+
+apps:
+  linux-app-manager:
+    command: usr/bin/linux-app-manager
+    desktop: usr/share/applications/io.github.linuxappmanager.Lam.desktop

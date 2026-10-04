@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+APP_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+if ! command -v cargo >/dev/null 2>&1; then
+  echo "Rust and Cargo are required. Install Rust with rustup, then run this launcher again." >&2
+  exit 1
+fi
+
+cargo build --release --locked --manifest-path "$APP_ROOT/Cargo.toml" --bin lam
+exec /usr/bin/python3 "$APP_ROOT/gui/app.py" --lam-bin "$APP_ROOT/target/release/lam" "$@"

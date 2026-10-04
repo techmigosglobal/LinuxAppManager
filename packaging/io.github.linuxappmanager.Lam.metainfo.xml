@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.linuxappmanager.Lam</id>
+  <name>Linux App Manager</name>
+  <summary>Inspect and safely manage installed Linux software</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <launchable type="desktop-id">io.github.linuxappmanager.Lam.desktop</launchable>
+  <url type="homepage">https://replace-before-release.example.org/linux-app-manager</url>
+  <developer id="io.github.linuxappmanager">
+    <name>Linux App Manager maintainers</name>
+  </developer>
+  <description>
+    <p>Browse desktop applications and full package inventories from supported Linux software sources.</p>
+    <p>Removal plans show the provider command and affected packages before a confirmed transaction.</p>
+  </description>
+  <categories>
+    <category>System</category>
+    <category>Utility</category>
+  </categories>
+  <keywords>
+    <keyword>packages</keyword>
+    <keyword>software</keyword>
+    <keyword>applications</keyword>
+  </keywords>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-09-25">
+      <description><p>Initial productionization track.</p></description>
+    </release>
+  </releases>
+</component>

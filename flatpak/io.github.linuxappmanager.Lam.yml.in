@@ -1,0 +1,30 @@
+app-id: io.github.linuxappmanager.Lam
+runtime: org.gnome.Platform
+runtime-version: '48'
+sdk: org.gnome.Sdk
+command: linux-app-manager
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --filesystem=host:ro
+  - --filesystem=home
+  # Host package mutation requires a separately reviewed helper. Until then,
+  # the Flatpak build must disable destructive controls at runtime.
+modules:
+  - name: linux-app-manager
+    buildsystem: simple
+    build-commands:
+      - cargo build --release --locked --bin lam
+      - install -Dm755 target/release/lam /app/libexec/linux-app-manager/lam
+      - install -Dm755 gui/app.py /app/libexec/linux-app-manager/app.py
+      - install -Dm755 packaging/flatpak-launcher /app/bin/linux-app-manager
+      - install -Dm644 packaging/io.github.linuxappmanager.Lam.desktop /app/share/applications/io.github.linuxappmanager.Lam.desktop
+      - install -Dm644 packaging/io.github.linuxappmanager.Lam.metainfo.xml /app/share/metainfo/io.github.linuxappmanager.Lam.metainfo.xml
+      - install -Dm644 packaging/io.github.linuxappmanager.Lam.svg /app/share/icons/hicolor/scalable/apps/io.github.linuxappmanager.Lam.svg
+    sources:
+      - type: git
+        url: '@SOURCE_URL@'
+        commit: '@SOURCE_COMMIT@'
+      - cargo-sources.json

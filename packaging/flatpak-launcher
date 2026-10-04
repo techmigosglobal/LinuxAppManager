@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+exec /usr/bin/python3 /app/libexec/linux-app-manager/app.py \
+  --lam-bin /app/libexec/linux-app-manager/lam "$@"
