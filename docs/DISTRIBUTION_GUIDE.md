@@ -405,7 +405,8 @@ repository. Prepare these inputs instead:
 - the upstream AppStream MetaInfo file, desktop file, icon, release entry,
   screenshots, and final license information.
 
-The current MetaInfo file still needs the final URL/ID and screenshots. Every
+The current MetaInfo file includes the final project URLs and real application
+screenshots. Every
 module’s license files must be installed under
 `$FLATPAK_DEST/share/licenses/$FLATPAK_ID` where required by the Flathub
 policy.
@@ -539,7 +540,7 @@ that claims every distribution:
 ```text
 tag vX.Y.Z
   ├─ quality: Rust tests, fmt, Clippy, GUI/Xvfb, security/audit checks
-  ├─ deb: pinned Debian/Ubuntu builder, amd64 + arm64
+  ├─ deb: pinned Debian/Ubuntu builder, amd64 first; arm64 after verification
   ├─ rpm: Fedora/Mock or Copr, each target chroot and architecture
   ├─ arch: clean Arch builder, x86_64 + supported ARM builder
   ├─ flatpak: Flathub-compatible builder and flatpak-builder-lint

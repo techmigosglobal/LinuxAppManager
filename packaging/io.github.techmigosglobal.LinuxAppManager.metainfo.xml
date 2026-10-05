@@ -6,10 +6,12 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <launchable type="desktop-id">io.github.techmigosglobal.LinuxAppManager.desktop</launchable>
-  <url type="homepage">https://github.com/techmigosglobal/LinuxAppManager</url>
+  <url type="homepage">https://techmigos.com</url>
   <url type="bugtracker">https://github.com/techmigosglobal/LinuxAppManager/issues</url>
+  <url type="vcs-browser">https://github.com/techmigosglobal/LinuxAppManager</url>
+  <url type="contact">https://techmigos.com</url>
   <developer id="io.github.techmigosglobal">
-    <name>VIN-LinuxManager maintainers</name>
+    <name>TechMigos Global</name>
   </developer>
   <description>
     <p>Browse desktop applications and full package inventories from supported Linux software sources in one calm, focused workspace.</p>
@@ -24,6 +26,20 @@
     <keyword>software</keyword>
     <keyword>applications</keyword>
   </keywords>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/techmigosglobal/LinuxAppManager/main/website/assets/screenshots/applications.png</image>
+      <caption>Browse installed desktop applications with provider health visible.</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/techmigosglobal/LinuxAppManager/main/website/assets/screenshots/duplicates.png</image>
+      <caption>Review duplicate installations across package sources.</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/techmigosglobal/LinuxAppManager/main/website/assets/screenshots/history.png</image>
+      <caption>Inspect local operation history before making another change.</caption>
+    </screenshot>
+  </screenshots>
   <content_rating type="oars-1.1"/>
   <releases>
     <release version="0.1.0" date="2026-10-05">

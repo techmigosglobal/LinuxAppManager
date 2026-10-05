@@ -1,7 +1,7 @@
 Source: linux-app-manager
 Section: admin
 Priority: optional
-Maintainer: VIN-LinuxManager maintainers <linux-app-manager-maintainers@example.org>
+Maintainer: VIN-LinuxManager maintainers <Vin-Linux-App-Manager@techmigos.com>
 Build-Depends: debhelper-compat (= 13), cargo (>= 1.90), rustc (>= 1.90), python3, python3-gi, gir1.2-gtk-4.0, gir1.2-adw-1
 Standards-Version: 4.7.0
 Rules-Requires-Root: no

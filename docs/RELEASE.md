@@ -24,7 +24,10 @@ until a reviewed helper and store-specific permission model are completed.
 5. Run `scripts/write-release-manifest.sh DIST_OR_ARTIFACT_DIR` to generate
    checksums, a file manifest, and a Cargo dependency SBOM; inspect packages for `target/`,
    `.git/`, caches, credentials, signing keys, and user data.
-6. Sign artifacts with release infrastructure kept outside this repository.
+6. Create or load the passphrase-protected GPG release key with
+   `scripts/create-release-signing-key.sh`, then sign artifacts with
+   `scripts/sign-release.sh`. Verify them with
+   `scripts/verify-release-signatures.sh`.
 7. Submit the native artifacts to the relevant repository/store and retain the
    previous version for rollback.
 
@@ -37,9 +40,8 @@ part of any package artifact; newer binaries must tolerate older schemas.
 
 ## External prerequisites
 
-Store publication still requires maintainer identity, signing keys, review
-metadata, screenshots, a confirmed project license, and store-specific
-acceptance. The public repository identity and first-release Flatpak ID are now
-set to `techmigosglobal/LinuxAppManager` and
-`io.github.techmigosglobal.LinuxAppManager`; publisher-owned legal and account
-details must still be confirmed before submission.
+Store publication still requires review metadata and store-specific
+acceptance. The public repository identity, support domain, maintainer email,
+license file, Debian copyright metadata, screenshots, and release-signing
+workflow are now present. The private signing key and store account secrets
+remain outside this repository.

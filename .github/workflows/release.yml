@@ -100,7 +100,48 @@ jobs:
         run: |
           mkdir -p release
           find dist -type f -exec cp {} release/ \;
-          sha256sum release/* > release/SHA256SUMS
+      - name: Sign release artifacts
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+        run: |
+          set -euo pipefail
+          for required_secret in GPG_PRIVATE_KEY GPG_PASSPHRASE GPG_KEY_ID; do
+            if [[ -z "${!required_secret}" ]]; then
+              echo "missing required release secret: ${required_secret}" >&2
+              exit 1
+            fi
+          done
+
+          export GNUPGHOME="$RUNNER_TEMP/vin-linuxmanager-gnupg"
+          install -d -m 700 "$GNUPGHOME"
+          printf '%s' "$GPG_PRIVATE_KEY" | gpg --batch --import
+          fingerprint="$(gpg --with-colons --list-secret-keys "$GPG_KEY_ID" \
+            | awk -F: '$1 == "fpr" { print $10; exit }')"
+          if [[ -z "$fingerprint" ]]; then
+            echo "GPG_KEY_ID does not resolve to a secret key" >&2
+            exit 1
+          fi
+
+          gpg --armor --export "$fingerprint" > release/vin-linuxmanager-release-public-key.asc
+          printf '%s\n' "$fingerprint" > release/vin-linuxmanager-release-key-fingerprint.txt
+          chmod 0644 release/vin-linuxmanager-release-public-key.asc \
+            release/vin-linuxmanager-release-key-fingerprint.txt
+
+          mapfile -t release_inputs < <(
+            find release -maxdepth 1 -type f \
+              ! -name 'SHA256SUMS' \
+              ! -name '*.asc' \
+              -print | sort
+          )
+          sha256sum "${release_inputs[@]}" > release/SHA256SUMS
+          printf '%s' "$GPG_PASSPHRASE" > "$RUNNER_TEMP/gpg-passphrase"
+          chmod 600 "$RUNNER_TEMP/gpg-passphrase"
+          GPG_PASSPHRASE_FILE="$RUNNER_TEMP/gpg-passphrase" \
+            ./scripts/sign-release.sh "$GPG_KEY_ID" release
+          ./scripts/verify-release-signatures.sh \
+            release/vin-linuxmanager-release-public-key.asc release
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}

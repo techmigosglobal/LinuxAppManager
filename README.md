@@ -40,3 +40,9 @@ Build the CLI with `cargo build --release --locked` · Try: `target/release/lam 
 The static product website lives in [`website/`](website/). Preview it with
 `python3 -m http.server 4173 --directory website`; the GitHub Pages workflow
 publishes it from `main` after the repository’s Pages setting is enabled.
+
+## Support
+
+- Website: <https://techmigos.com>
+- Support: <mailto:Vin-Linux-App-Manager@techmigos.com>
+- Issues: <https://github.com/techmigosglobal/LinuxAppManager/issues>

@@ -30,9 +30,9 @@ Build recipes:
 - `arch/PKGBUILD` for Arch-based repositories;
 - `snap/snapcraft.yaml` and `flatpak/*.yml.in` for sandboxed packaging review.
 
-Before a store submission, replace maintainer/repository placeholders, build
-from a clean tagged source archive, sign the package and checksum files, and
-run `scripts/release-audit.sh`. On a Docker-enabled release workstation, run
+Before a store submission, confirm the maintainer/support metadata, build from
+a clean tagged source archive, sign the package and checksum files, and run
+`scripts/release-audit.sh`. On a Docker-enabled release workstation, run
 `scripts/verify-clean-debian.sh` as well; it builds the Debian package in the
 pinned Ubuntu image and rejects incomplete or contaminated package contents.
 The RPM, Arch, Snap, and Flatpak recipes still require their respective

@@ -24,10 +24,11 @@ Still to publish:
 - Arch User Repository
 - AppImage
 
-Before any store submission, replace the provisional maintainer email in
-`debian/control`, `debian/changelog`, and the RPM metadata, confirm the legal
-license, add a `LICENSE` file, and decide which architectures are supported.
-The current GitHub release has checksums but is not GPG-signed.
+Before any store submission, keep the passphrase-protected release key outside
+the repository, configure the CI secrets described below, and decide which
+architectures are supported. The current GitHub release `v0.1.0` now has
+checksums, detached GPG signatures, the public key, and its fingerprint; the
+next tagged release will be signed by the same protected workflow automatically.
 
 ## 1. Prepare each release
 
@@ -64,6 +65,40 @@ git push origin "v${VERSION}"
 
 Keep hashes, SBOMs, package reports, and builder details with the release. Do
 not put store tokens, GPG private keys, or Snapcraft credential files in Git.
+
+### Configure release signing
+
+Create the local key interactively:
+
+```bash
+./scripts/create-release-signing-key.sh
+```
+
+Record the printed fingerprint and publish the generated public key with the
+release. Export the private key only to a protected file for CI configuration:
+
+```bash
+gpg --armor --export-secret-keys <FINGERPRINT> > /protected/path/release-private-key.asc
+chmod 600 /protected/path/release-private-key.asc
+```
+
+Add these GitHub Actions secrets to the repository:
+
+- `GPG_PRIVATE_KEY`: contents of the protected private-key export;
+- `GPG_PASSPHRASE`: the key passphrase;
+- `GPG_KEY_ID`: the full key fingerprint.
+
+The tag-triggered release workflow imports the key ephemerally, creates
+detached armored signatures for every release input and `SHA256SUMS`, publishes
+the public key and fingerprint, and verifies every signature before creating
+the GitHub release. Test the same process locally with:
+
+```bash
+GPG_PASSPHRASE_FILE=/protected/path/passphrase \
+  ./scripts/sign-release.sh <FINGERPRINT> dist/release
+./scripts/verify-release-signatures.sh \
+  dist/signing/vin-linuxmanager-release-public-key.asc dist/release
+```
 
 ## 2. Snap Store
 
@@ -211,7 +246,7 @@ backends and AppStream metadata.
 
 ### Option A: Ubuntu Launchpad PPA
 
-1. Replace the provisional maintainer identity.
+1. Confirm the final maintainer identity and contact details.
 2. Add the final `LICENSE` and `debian/copyright`.
 3. Convert the current native package to an archive-quality source package if
    Launchpad requires it.

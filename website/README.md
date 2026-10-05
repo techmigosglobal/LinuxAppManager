@@ -15,12 +15,12 @@ keyboard focus order, and reduced-motion behavior.
 
 ## Before public deployment
 
-- Add a real support address or discussion forum once the project support
-  channel is chosen.
+- Keep the public support address at
+  `Vin-Linux-App-Manager@techmigos.com` and the project site at
+  `https://techmigos.com`.
 - Add the final custom domain, canonical URL, Open Graph image, `robots.txt`,
   and `sitemap.xml` once the domain is chosen.
 - Replace “Submission next” store cards with real Flatpak/Snap links after the first
   store submissions are accepted.
 - Keep the website’s download links pointed at the exact release assets and
-  publish their checksums; add detached signatures once release signing is
-  configured.
+  publish their checksums, detached signatures, public key, and fingerprint.

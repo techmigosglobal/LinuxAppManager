@@ -9,7 +9,6 @@ grade: devel
 confinement: classic
 architectures:
   - build-on: amd64
-  - build-on: arm64
 
 parts:
   linux-app-manager:

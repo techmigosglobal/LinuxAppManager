@@ -5,7 +5,7 @@ ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 failures=0
-for required in Cargo.toml Cargo.lock README.md packaging/io.github.techmigosglobal.LinuxAppManager.desktop packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml packaging/io.github.techmigosglobal.LinuxAppManager.svg packaging/io.github.techmigosglobal.LinuxAppManager.png; do
+for required in LICENSE debian/copyright Cargo.toml Cargo.lock README.md packaging/io.github.techmigosglobal.LinuxAppManager.desktop packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml packaging/io.github.techmigosglobal.LinuxAppManager.svg packaging/io.github.techmigosglobal.LinuxAppManager.png website/assets/screenshots/applications.png website/assets/screenshots/duplicates.png website/assets/screenshots/history.png; do
   if [[ ! -f "$required" ]]; then
     echo "missing release input: $required" >&2
     failures=$((failures + 1))
@@ -21,6 +21,19 @@ if Path("packaging/io.github.techmigosglobal.LinuxAppManager.png").read_bytes()[
 print("release PNG icon: valid")
 PY
 then
+  failures=$((failures + 1))
+fi
+
+if rg -n -i 'example\.org|linux-app-manager-maintainers@example\.org' \
+  README.md Cargo.toml Cargo.lock debian rpm packaging website docs snap arch flatpak; then
+  echo "provisional maintainer contact found in release inputs" >&2
+  failures=$((failures + 1))
+fi
+
+if ! rg -q 'Vin-Linux-App-Manager@techmigos\.com|https://techmigos\.com' \
+  debian/control debian/changelog debian/copyright rpm/linux-app-manager.spec \
+  packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml website/index.html; then
+  echo "final maintainer/support contact is missing" >&2
   failures=$((failures + 1))
 fi
 

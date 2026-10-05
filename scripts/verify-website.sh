@@ -15,6 +15,9 @@ required = [
     root / 'README.md',
     root / 'assets' / 'vin-linuxmanager-mark.svg',
     root / 'assets' / 'vin-linuxmanager-mark.png',
+    root / 'assets' / 'screenshots' / 'applications.png',
+    root / 'assets' / 'screenshots' / 'duplicates.png',
+    root / 'assets' / 'screenshots' / 'history.png',
 ]
 missing = [str(path) for path in required if not path.is_file()]
 if missing:
