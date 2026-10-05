@@ -45,5 +45,5 @@ install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.png %{bui
 %{_datadir}/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
 
 %changelog
-* Fri Sep 25 2026 VIN-LinuxManager maintainers - 0.1.0-1
+* Mon Oct 05 2026 VIN-LinuxManager maintainers - 0.1.0-1
 - Initial productionization track
