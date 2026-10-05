@@ -1,4 +1,4 @@
-name: linux-app-manager
+name: vin-linux-app-manager
 base: core24
 version: '0.1.0'
 summary: VIN-LinuxManager safe cross-source Linux software manager
