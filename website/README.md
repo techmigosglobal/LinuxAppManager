@@ -19,6 +19,6 @@ keyboard focus order, and reduced-motion behavior.
   channel is chosen.
 - Add the final custom domain, canonical URL, Open Graph image, `robots.txt`,
   and `sitemap.xml` once the domain is chosen.
-- Replace “Preparing” store cards with real Flatpak/Snap links after the first
+- Replace “Submission next” store cards with real Flatpak/Snap links after the first
   store submissions are accepted.
 - Keep the website’s download links pointed at the exact signed release assets.
