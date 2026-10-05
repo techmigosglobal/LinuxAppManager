@@ -7,8 +7,10 @@ description: |
   sources. Review the provider transaction before making a change.
 grade: devel
 confinement: classic
-architectures:
-  - build-on: amd64
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
 
 parts:
   linux-app-manager:
