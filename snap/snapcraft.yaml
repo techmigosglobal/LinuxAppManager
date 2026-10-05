@@ -5,6 +5,7 @@ summary: VIN-LinuxManager safe cross-source Linux software manager
 description: |
   VIN-LinuxManager inventories desktop applications and packages from common Linux software
   sources. Review the provider transaction before making a change.
+icon: usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
 grade: devel
 confinement: classic
 platforms:
@@ -41,4 +42,3 @@ apps:
   linux-app-manager:
     command: usr/bin/linux-app-manager
     desktop: usr/share/applications/io.github.techmigosglobal.LinuxAppManager.desktop
-    icon: usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
