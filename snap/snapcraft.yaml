@@ -41,3 +41,4 @@ apps:
   linux-app-manager:
     command: usr/bin/linux-app-manager
     desktop: usr/share/applications/io.github.techmigosglobal.LinuxAppManager.desktop
+    icon: usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
