@@ -21,4 +21,6 @@ keyboard focus order, and reduced-motion behavior.
   and `sitemap.xml` once the domain is chosen.
 - Replace “Submission next” store cards with real Flatpak/Snap links after the first
   store submissions are accepted.
-- Keep the website’s download links pointed at the exact signed release assets.
+- Keep the website’s download links pointed at the exact release assets and
+  publish their checksums; add detached signatures once release signing is
+  configured.

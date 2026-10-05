@@ -4,11 +4,11 @@ This guide explains how to turn a tagged VIN-LinuxManager release into native
 packages, Flatpak/Snap artifacts, repository metadata, and a staged public
 release.
 
-The commands assume a real Git checkout with a public remote. The current
-workspace has packaging recipes and a passing pinned Debian clean build, but it
-does not yet contain the final public repository identity, maintainer identity,
-license file, store credentials, or all store-specific builder evidence. Do not
-replace those values with invented ones.
+The commands assume a real Git checkout with a public remote. The public
+repository identity and first-release Flatpak ID are finalized, and v0.1.0 is
+available as a GitHub release. Maintainer identity, legal license confirmation,
+signing keys, store credentials, and some store-specific builder evidence are
+still publisher-owned inputs. Do not replace those values with invented ones.
 
 ## 1. Choose the distribution model
 
@@ -53,8 +53,9 @@ repository:
 
 The public source repository is `https://github.com/techmigosglobal/LinuxAppManager`
 and the first-release Flatpak identity is `io.github.techmigosglobal.LinuxAppManager`.
-Maintainer contact, legal license confirmation, signing keys, store accounts,
-and a production website domain still need to be supplied by the publisher.
+The project website is `https://techmigosglobal.github.io/LinuxAppManager/`.
+Maintainer contact, legal license confirmation, signing keys, and store
+accounts still need to be supplied by the publisher.
 
 ## 3. Common release procedure
 
