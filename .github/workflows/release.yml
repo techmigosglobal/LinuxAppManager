@@ -57,7 +57,7 @@ jobs:
       - name: Install Debian build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --yes debhelper-compat dpkg-dev python3 python3-gi gir1.2-gtk-4.0 gir1.2-adw-1
+          sudo apt-get install --yes build-essential cargo rustc debhelper-compat dpkg-dev python3 python3-gi gir1.2-gtk-4.0 gir1.2-adw-1
       - name: Build package
         run: dpkg-buildpackage -us -uc -b
       - name: Collect package
