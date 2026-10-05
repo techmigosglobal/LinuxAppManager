@@ -30,3 +30,5 @@ jobs:
         run: ./scripts/test-integration.sh
       - name: Release audit
         run: ./scripts/release-audit.sh
+      - name: Website audit
+        run: ./scripts/verify-website.sh

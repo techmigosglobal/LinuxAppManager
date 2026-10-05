@@ -1,8 +1,8 @@
-# Linux App Manager productionization plan
+# VIN-LinuxManager productionization plan
 
 ## Goal
 
-Turn Linux App Manager into a trustworthy, distributable desktop application for
+Turn VIN-LinuxManager into a trustworthy, distributable desktop application for
 Linux users. The release must never imply that a package source was scanned when
 it was only detected, and destructive actions must remain provider-specific,
 reviewable, and rechecked immediately before execution.

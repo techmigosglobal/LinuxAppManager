@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#08111f" />
+    <meta
+      name="description"
+      content="VIN-LinuxManager is a focused Linux software manager for discovering, understanding, and safely managing software across native and sandboxed sources."
+    />
+    <title>VIN-LinuxManager — Linux software, made legible</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="assets/vin-linuxmanager-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <div class="site-shell">
+      <header class="site-header" data-header>
+        <a class="brand" href="#top" aria-label="VIN-LinuxManager home">
+          <img src="assets/vin-linuxmanager-mark.svg" alt="" width="36" height="36" />
+          <span>VIN<span class="brand-dash">—</span>LinuxManager</span>
+        </a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+          <span>Menu</span>
+          <span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+        </button>
+        <nav id="site-nav" class="site-nav" aria-label="Main navigation">
+          <a href="#why">Why it exists</a>
+          <a href="#sources">Sources</a>
+          <a href="#safety">Safety</a>
+          <a href="#install">Install</a>
+          <a class="nav-cta" href="https://github.com/techmigosglobal/LinuxAppManager" target="_blank" rel="noreferrer">View source <span aria-hidden="true">↗</span></a>
+        </nav>
+      </header>
+
+      <main id="main-content">
+        <section class="hero section-pad" id="top">
+          <div class="hero-copy reveal">
+            <p class="eyebrow"><span class="pulse-dot"></span> First release in preparation</p>
+            <h1>Linux software,<br /><em>made legible.</em></h1>
+            <p class="hero-lede">
+              One calm workspace for the software already on your machine — with
+              honest provider health, a focused Applications view, and every
+              change shown before it happens.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#install">Explore installation <span aria-hidden="true">↓</span></a>
+              <a class="button button-quiet" href="https://github.com/techmigosglobal/LinuxAppManager/releases" target="_blank" rel="noreferrer">Release notes <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="hero-meta">
+              <span><i></i> Rust core</span>
+              <span><i></i> GTK4 desktop</span>
+              <span><i></i> Open source</span>
+            </div>
+          </div>
+
+          <div class="hero-stage reveal reveal-delay-2" aria-label="VIN-LinuxManager interface preview">
+            <div class="orbit orbit-one"></div>
+            <div class="orbit orbit-two"></div>
+            <div class="hero-badge badge-top"><span class="badge-kicker">SCAN STATUS</span><strong>4 sources healthy</strong><span class="badge-signal"><i></i> Live inventory</span></div>
+            <div class="app-window" data-tilt>
+              <div class="window-bar">
+                <div class="window-dots"><i></i><i></i><i></i></div>
+                <span>VIN-LinuxManager</span>
+                <span class="window-command">⌘ K</span>
+              </div>
+              <div class="window-body">
+                <aside class="window-sidebar">
+                  <div class="sidebar-logo"><img src="assets/vin-linuxmanager-mark.svg" alt="" width="28" height="28" /></div>
+                  <span class="sidebar-label">WORKSPACE</span>
+                  <span class="sidebar-item active"><b>◈</b> Applications <small>69</small></span>
+                  <span class="sidebar-item"><b>⊞</b> All packages <small>298</small></span>
+                  <span class="sidebar-item"><b>◌</b> Duplicates <small>12</small></span>
+                  <span class="sidebar-item"><b>↺</b> History</span>
+                  <span class="sidebar-label sidebar-label-bottom">PROVIDERS</span>
+                  <span class="provider-mini"><i class="provider-dot green"></i> APT / dpkg</span>
+                  <span class="provider-mini"><i class="provider-dot green"></i> Flatpak</span>
+                  <span class="provider-mini"><i class="provider-dot amber"></i> DNF / RPM</span>
+                </aside>
+                <div class="window-content">
+                  <div class="content-heading"><div><span class="content-overline">YOUR SOFTWARE</span><h2>Applications <sup>69</sup></h2></div><span class="refresh-chip">↻ Refreshed now</span></div>
+                  <div class="search-line"><span>⌕</span><span>Search installed applications</span><kbd>/</kbd></div>
+                  <div class="app-list">
+                    <div class="app-entry"><span class="app-symbol symbol-cyan">◈</span><span><strong>Firefox</strong><small>APT · desktop application</small></span><em>Up to date</em></div>
+                    <div class="app-entry"><span class="app-symbol symbol-amber">✦</span><span><strong>Obsidian</strong><small>AppImage · user-owned</small></span><em>Manual install</em></div>
+                    <div class="app-entry"><span class="app-symbol symbol-violet">⬡</span><span><strong>Mission Center</strong><small>Flatpak · verified source</small></span><em>Up to date</em></div>
+                  </div>
+                  <div class="review-card"><span class="review-icon">✓</span><span><strong>Every removal is reviewed first.</strong><small>Provider command and affected packages stay visible.</small></span><span class="review-arrow">→</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="hero-badge badge-bottom"><span class="badge-kicker">LAST OPERATION</span><strong>Preview only</strong><span class="badge-signal"><i class="amber-dot"></i> No changes made</span></div>
+          </div>
+        </section>
+
+        <div class="source-ribbon" aria-label="Supported software sources">
+          <span class="ribbon-label">BUILT FOR THE REAL LINUX DESKTOP</span>
+          <div class="ribbon-sources"><span>APT / DPKG</span><b>·</b><span>DNF / RPM</span><b>·</b><span>PACMAN</span><b>·</b><span>FLATPAK</span><b>·</b><span>SNAP</span><b>·</b><span>APPIMAGE</span></div>
+        </div>
+
+        <section class="intro section-pad" id="why">
+          <div class="section-heading reveal"><p class="eyebrow">The point of view</p><h2>Less package archaeology.<br /><span>More useful software.</span></h2></div>
+          <div class="intro-copy reveal reveal-delay-1"><p>Linux gives you choice. It also gives you five different ways to ask, “What did I install, and where did it come from?”</p><p>VIN-LinuxManager brings those answers into one focused interface without pretending that a detected provider is healthy or that a sandbox can safely mutate the host.</p></div>
+        </section>
+
+        <section class="feature-grid section-pad">
+          <article class="feature-card feature-card-large reveal"><span class="feature-index">01 / DEFAULT VIEW</span><div class="feature-art art-radar"><span></span><span></span><span></span><i></i></div><h3>Applications first.</h3><p>Desktop apps get the front row. CLI tools, libraries, runtimes, and system components stay available when you need the complete inventory.</p><a href="#sources">See the sources <span aria-hidden="true">↗</span></a></article>
+          <article class="feature-card reveal reveal-delay-1"><span class="feature-index">02 / PROVIDER TRUTH</span><div class="feature-number">4<span>/6</span></div><h3>Health, not just detection.</h3><p>A provider can be present and still unusable. VIN-LinuxManager keeps that distinction visible.</p></article>
+          <article class="feature-card feature-card-dark reveal reveal-delay-2"><span class="feature-index">03 / BEFORE CHANGE</span><div class="feature-quote">“<br /><strong>Review<br />first.</strong></div><h3>Nothing mysterious.</h3><p>Removal plans show the provider command and affected packages before authorization.</p></article>
+          <article class="feature-card feature-card-wide reveal"><span class="feature-index">04 / LOCAL HISTORY</span><div class="history-art"><span>08:42</span><i></i><span>07:16</span><i></i><span>Yesterday</span></div><h3>A memory of your changes.</h3><p>Operation history and cache inspection stay local, so you can understand what happened without handing your machine’s inventory to a service.</p></article>
+        </section>
+
+        <section class="sources-section section-pad" id="sources">
+          <div class="section-heading reveal"><p class="eyebrow">One desk, many shelves</p><h2>Meet the sources<br /><span>on their own terms.</span></h2></div>
+          <div class="source-table reveal reveal-delay-1">
+            <div class="source-row source-row-head"><span>Source</span><span>Inventory</span><span>Review</span><span>Position</span></div>
+            <div class="source-row"><span class="source-name"><i class="source-mark mark-blue">A</i> APT / dpkg</span><span>Installed packages</span><span class="status status-ready">Supported</span><span>Native</span></div>
+            <div class="source-row"><span class="source-name"><i class="source-mark mark-red">R</i> DNF / RPM</span><span>Installed packages</span><span class="status status-health">Health-aware</span><span>Native</span></div>
+            <div class="source-row"><span class="source-name"><i class="source-mark mark-purple">P</i> Pacman</span><span>Installed packages</span><span class="status status-ready">Supported</span><span>Native</span></div>
+            <div class="source-row"><span class="source-name"><i class="source-mark mark-mint">F</i> Flatpak</span><span>Apps + runtimes</span><span class="status status-limited">Inventory-first</span><span>Sandboxed</span></div>
+            <div class="source-row"><span class="source-name"><i class="source-mark mark-amber">S</i> Snap</span><span>Installed snaps</span><span class="status status-limited">Inventory-first</span><span>Sandboxed</span></div>
+            <div class="source-row"><span class="source-name"><i class="source-mark mark-coral">⌁</i> AppImage</span><span>User-owned apps</span><span class="status status-recover">Recoverable</span><span>Portable</span></div>
+          </div>
+        </section>
+
+        <section class="safety-section section-pad" id="safety">
+          <div class="safety-panel reveal">
+            <div class="safety-copy"><p class="eyebrow">A safer default</p><h2>Good software management<br /><em>has a pause button.</em></h2><p>Protected packages stay protected. Provider commands are fixed and validated. AppImages go to Trash instead of vanishing. Sandbox builds refuse host mutations until the helper boundary is ready.</p><a class="text-link" href="https://github.com/techmigosglobal/LinuxAppManager/blob/main/docs/TESTING.md" target="_blank" rel="noreferrer">Read the safety notes <span aria-hidden="true">↗</span></a></div>
+            <div class="safety-seal"><img src="assets/vin-linuxmanager-mark.svg" alt="" width="128" height="128" /><span>REVIEWED<br />BY DESIGN</span></div>
+          </div>
+        </section>
+
+        <section class="install-section section-pad" id="install">
+          <div class="section-heading reveal"><p class="eyebrow">The first release</p><h2>Choose your<br /><span>Linux lane.</span></h2><p class="heading-note">The release pipeline is being prepared for native packages and sandboxed distribution. Source builds are available today.</p></div>
+          <div class="install-grid reveal reveal-delay-1">
+            <article class="install-card install-card-featured"><div class="install-card-top"><span class="install-label">SOURCE</span><span class="install-status">Available now</span></div><h3>Build from source</h3><p>For developers and early testers who want the current main branch.</p><div class="code-block"><code>cargo build --release --locked</code><button class="copy-command" type="button" data-copy="cargo build --release --locked" aria-label="Copy source build command">Copy</button></div><a href="https://github.com/techmigosglobal/LinuxAppManager" target="_blank" rel="noreferrer">Open repository <span aria-hidden="true">↗</span></a></article>
+            <article class="install-card"><div class="install-card-top"><span class="install-label">FLATPAK</span><span class="install-status status-planned">Preparing</span></div><h3>Flathub</h3><p>A portable desktop experience with inventory-first host boundaries.</p><div class="install-placeholder"><span>Submission package</span><strong>In preparation</strong></div><a href="https://github.com/techmigosglobal/LinuxAppManager/issues" target="_blank" rel="noreferrer">Follow release work <span aria-hidden="true">↗</span></a></article>
+            <article class="install-card"><div class="install-card-top"><span class="install-label">SNAP STORE</span><span class="install-status status-planned">Preparing</span></div><h3>Snap</h3><p>A first channel for systems with snapd, with the same honest boundaries.</p><div class="install-placeholder"><span>Store channel</span><strong>In preparation</strong></div><a href="https://github.com/techmigosglobal/LinuxAppManager/issues" target="_blank" rel="noreferrer">Follow release work <span aria-hidden="true">↗</span></a></article>
+          </div>
+        </section>
+
+        <section class="closing section-pad">
+          <div class="closing-mark reveal"><img src="assets/vin-linuxmanager-mark.svg" alt="VIN-LinuxManager mark" width="86" height="86" /></div>
+          <div class="closing-copy reveal reveal-delay-1"><p class="eyebrow">Make your software legible</p><h2>Linux is powerful.<br /><span>Your manager should be calm.</span></h2><a class="button button-primary" href="https://github.com/techmigosglobal/LinuxAppManager" target="_blank" rel="noreferrer">Follow the first release <span aria-hidden="true">↗</span></a></div>
+        </section>
+      </main>
+
+      <footer class="site-footer section-pad">
+        <div class="footer-brand"><img src="assets/vin-linuxmanager-mark.svg" alt="" width="30" height="30" /><span>VIN-LinuxManager</span></div>
+        <p>Open-source Linux software management, with the sharp edges labelled.</p>
+        <div class="footer-links"><a href="https://github.com/techmigosglobal/LinuxAppManager" target="_blank" rel="noreferrer">GitHub</a><a href="https://github.com/techmigosglobal/LinuxAppManager/issues" target="_blank" rel="noreferrer">Issues</a><a href="https://github.com/techmigosglobal/LinuxAppManager/issues/new" target="_blank" rel="noreferrer">Contact</a></div>
+        <small>© 2026 VIN-LinuxManager maintainers · Built for Linux</small>
+      </footer>
+    </div>
+    <script src="script.js" defer></script>
+  </body>
+</html>

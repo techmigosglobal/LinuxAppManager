@@ -3,7 +3,7 @@
 The detailed release workflow is in
 [`docs/DISTRIBUTION_GUIDE.md`](../docs/DISTRIBUTION_GUIDE.md).
 
-Linux App Manager is a host package-management application. Native Debian,
+VIN-LinuxManager is a host package-management application. Native Debian,
 RPM, and Arch packages are the authoritative operational artifacts because they
 can access the host package databases and request Polkit authorization through
 the desktop session.

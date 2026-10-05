@@ -10,6 +10,7 @@ override_dh_auto_install:
 	install -D -m 0755 target/release/lam debian/linux-app-manager/usr/lib/linux-app-manager/lam
 	install -D -m 0755 gui/app.py debian/linux-app-manager/usr/lib/linux-app-manager/app.py
 	install -D -m 0755 packaging/linux-app-manager debian/linux-app-manager/usr/bin/linux-app-manager
-	install -D -m 0644 packaging/io.github.linuxappmanager.Lam.desktop debian/linux-app-manager/usr/share/applications/io.github.linuxappmanager.Lam.desktop
-	install -D -m 0644 packaging/io.github.linuxappmanager.Lam.metainfo.xml debian/linux-app-manager/usr/share/metainfo/io.github.linuxappmanager.Lam.metainfo.xml
-	install -D -m 0644 packaging/io.github.linuxappmanager.Lam.svg debian/linux-app-manager/usr/share/icons/hicolor/scalable/apps/io.github.linuxappmanager.Lam.svg
+	install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.desktop debian/linux-app-manager/usr/share/applications/io.github.techmigosglobal.LinuxAppManager.desktop
+	install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml debian/linux-app-manager/usr/share/metainfo/io.github.techmigosglobal.LinuxAppManager.metainfo.xml
+	install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.svg debian/linux-app-manager/usr/share/icons/hicolor/scalable/apps/io.github.techmigosglobal.LinuxAppManager.svg
+	install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.png debian/linux-app-manager/usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png

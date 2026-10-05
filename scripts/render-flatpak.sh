@@ -16,5 +16,5 @@ flatpak-cargo-generator.py "$ROOT/Cargo.lock" -o "$OUT_DIR/cargo-sources.json"
 sed \
   -e "s|@SOURCE_URL@|$SOURCE_URL|g" \
   -e "s|@SOURCE_COMMIT@|$SOURCE_COMMIT|g" \
-  "$ROOT/flatpak/io.github.linuxappmanager.Lam.yml.in" > "$OUT_DIR/io.github.linuxappmanager.Lam.yml"
+  "$ROOT/flatpak/io.github.techmigosglobal.LinuxAppManager.yml.in" > "$OUT_DIR/io.github.techmigosglobal.LinuxAppManager.yml"
 echo "rendered Flatpak manifest in $OUT_DIR"

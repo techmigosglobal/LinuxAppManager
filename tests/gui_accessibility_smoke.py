@@ -14,7 +14,7 @@ from gui.app import ManagerWindow  # noqa: E402
 
 
 def main():
-    application = Adw.Application(application_id="io.github.linuxappmanager.Lam.AccessibilitySmoke")
+    application = Adw.Application(application_id="io.github.techmigosglobal.LinuxAppManager.AccessibilitySmoke")
     application.register()
     window = ManagerWindow(application, "/bin/true")
 

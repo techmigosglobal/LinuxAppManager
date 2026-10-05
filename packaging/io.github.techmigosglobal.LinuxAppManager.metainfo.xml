@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>io.github.linuxappmanager.Lam</id>
-  <name>Linux App Manager</name>
-  <summary>Inspect and safely manage installed Linux software</summary>
+  <id>io.github.techmigosglobal.LinuxAppManager</id>
+  <name>VIN-LinuxManager</name>
+  <summary>A focused, trustworthy Linux software manager</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
-  <launchable type="desktop-id">io.github.linuxappmanager.Lam.desktop</launchable>
-  <url type="homepage">https://replace-before-release.example.org/linux-app-manager</url>
-  <developer id="io.github.linuxappmanager">
-    <name>Linux App Manager maintainers</name>
+  <launchable type="desktop-id">io.github.techmigosglobal.LinuxAppManager.desktop</launchable>
+  <url type="homepage">https://github.com/techmigosglobal/LinuxAppManager</url>
+  <url type="bugtracker">https://github.com/techmigosglobal/LinuxAppManager/issues</url>
+  <developer id="io.github.techmigosglobal">
+    <name>VIN-LinuxManager maintainers</name>
   </developer>
   <description>
-    <p>Browse desktop applications and full package inventories from supported Linux software sources.</p>
+    <p>Browse desktop applications and full package inventories from supported Linux software sources in one calm, focused workspace.</p>
     <p>Removal plans show the provider command and affected packages before a confirmed transaction.</p>
   </description>
   <categories>

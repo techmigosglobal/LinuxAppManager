@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""GTK frontend for the Linux App Manager Rust CLI."""
+"""GTK frontend for the VIN-LinuxManager Rust CLI."""
 
 import argparse
 from datetime import datetime
@@ -46,7 +46,7 @@ def label(text, css=None, wrap=False):
 
 class ManagerWindow(Adw.ApplicationWindow):
     def __init__(self, application, lam_binary):
-        super().__init__(application=application, title="Linux App Manager")
+        super().__init__(application=application, title="VIN-LinuxManager")
         self.lam_binary = lam_binary
         self.apps = []
         self.errors = []
@@ -70,7 +70,7 @@ class ManagerWindow(Adw.ApplicationWindow):
 
         toolbar = Adw.ToolbarView()
         header = Adw.HeaderBar()
-        header.set_title_widget(label("Linux App Manager"))
+        header.set_title_widget(label("VIN-LinuxManager"))
         self.refresh_button = Gtk.Button.new_from_icon_name("view-refresh-symbolic")
         self.refresh_button.set_tooltip_text("Refresh installed applications")
         self.refresh_button.update_property(
@@ -684,11 +684,11 @@ class ManagerWindow(Adw.ApplicationWindow):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Linux App Manager GUI")
+    parser = argparse.ArgumentParser(description="VIN-LinuxManager Linux software manager GUI")
     parser.add_argument("--lam-bin", required=True, help="path to the Rust lam executable")
     args = parser.parse_args()
     application = Adw.Application(
-        application_id="io.github.linuxappmanager.Lam",
+        application_id="io.github.techmigosglobal.LinuxAppManager",
         flags=Gio.ApplicationFlags.DEFAULT_FLAGS,
     )
     application.connect("activate", lambda app: ManagerWindow(app, args.lam_bin).present())

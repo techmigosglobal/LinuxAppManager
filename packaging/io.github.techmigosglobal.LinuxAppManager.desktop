@@ -1,9 +1,10 @@
 [Desktop Entry]
 Type=Application
-Name=Linux App Manager
-Comment=Inspect and safely manage software installed from Linux package sources
+Name=VIN-LinuxManager
+GenericName=Linux Software Manager
+Comment=Inspect and safely manage installed Linux software
 Exec=linux-app-manager
-Icon=io.github.linuxappmanager.Lam
+Icon=io.github.techmigosglobal.LinuxAppManager
 Terminal=false
 Categories=System;
 Keywords=packages;software;applications;flatpak;snap;apt;dnf;pacman;

@@ -1,6 +1,8 @@
-# Linux App Manager
+# VIN-LinuxManager
 
-Rust library `lam_core` and CLI `lam`, with a GTK4/libadwaita desktop interface.
+VIN-LinuxManager is a focused Linux software manager built around a Rust library (`lam_core`),
+the `lam` CLI, and a GTK4/libadwaita desktop interface. `linux-app-manager` remains
+the stable technical package name for upgrade compatibility.
 
 ## Done
 - Unified `InstalledApplication` model, `PackageProvider` trait (no generic run-command API)
@@ -32,3 +34,9 @@ APT and DNF operations request authorization through Polkit; Flatpak and Snap us
 Run the desktop GUI with `./run-gui`. It builds the Rust CLI and opens the GTK window. The **Applications** view shows desktop applications only; CLI tools, libraries, runtimes, and system components are available in **All packages**. Provider availability and scan health are shown in the scan summary. On RPM systems, the inventory is populated from the RPM database when it is readable by the current session.
 
 Build the CLI with `cargo build --release --locked` · Try: `target/release/lam list`
+
+## Website
+
+The static product website lives in [`website/`](website/). Preview it with
+`python3 -m http.server 4173 --directory website`; the GitHub Pages workflow
+publishes it from `main` after the repository’s Pages setting is enabled.

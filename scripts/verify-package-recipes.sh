@@ -21,14 +21,14 @@ else
 fi
 
 if command -v desktop-file-validate >/dev/null 2>&1; then
-  desktop-file-validate packaging/io.github.linuxappmanager.Lam.desktop
+  desktop-file-validate packaging/io.github.techmigosglobal.LinuxAppManager.desktop
   echo "desktop entry: valid"
 else
   echo "desktop entry: skipped (desktop-file-validate unavailable)"
 fi
 
 if command -v appstreamcli >/dev/null 2>&1; then
-  appstreamcli validate --no-net packaging/io.github.linuxappmanager.Lam.metainfo.xml
+  appstreamcli validate --no-net packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml
   echo "AppStream metadata: valid"
 else
   echo "AppStream metadata: skipped (appstreamcli unavailable)"

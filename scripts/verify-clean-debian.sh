@@ -80,9 +80,10 @@ for package in "${packages[@]}"; do
     './usr/bin/linux-app-manager' \
     './usr/lib/linux-app-manager/lam' \
     './usr/lib/linux-app-manager/app.py' \
-    './usr/share/applications/io.github.linuxappmanager.Lam.desktop' \
-    './usr/share/metainfo/io.github.linuxappmanager.Lam.metainfo.xml' \
-    './usr/share/icons/hicolor/scalable/apps/io.github.linuxappmanager.Lam.svg'; do
+    './usr/share/applications/io.github.techmigosglobal.LinuxAppManager.desktop' \
+    './usr/share/metainfo/io.github.techmigosglobal.LinuxAppManager.metainfo.xml' \
+    './usr/share/icons/hicolor/scalable/apps/io.github.techmigosglobal.LinuxAppManager.svg' \
+    './usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png'; do
     if ! grep -Fq "$required" <<<"$contents"; then
       echo "package is missing ${required}: ${package}" >&2
       exit 1

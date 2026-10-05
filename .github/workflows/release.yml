@@ -1,0 +1,108 @@
+name: Release artifacts
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version without the leading v (for example 0.1.0)'
+        required: true
+        default: '0.1.0'
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  verify:
+    name: Verify release source
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: 1.90.0
+          components: rustfmt, clippy
+      - name: Install GUI and package validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes appstream desktop-file-utils python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 xvfb
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Tests
+        run: cargo test --all-targets
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+      - name: GUI integration smoke
+        run: ./scripts/test-integration.sh
+      - name: Release audit
+        run: ./scripts/release-audit.sh
+
+  deb:
+    name: Build Debian package
+    needs: verify
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: 1.90.0
+      - name: Install Debian build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes debhelper-compat dpkg-dev python3 python3-gi gir1.2-gtk-4.0 gir1.2-adw-1
+      - name: Build package
+        run: dpkg-buildpackage -us -uc -b
+      - name: Collect package
+        run: |
+          mkdir -p dist/deb
+          cp ../linux-app-manager_*.deb dist/deb/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vin-linuxmanager-deb
+          path: dist/deb/*.deb
+
+  source:
+    name: Build source bundle
+    needs: verify
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create source archive
+        run: |
+          mkdir -p dist/source
+          git archive --format=tar.gz --prefix=vin-linuxmanager-${GITHUB_REF_NAME#v}/ HEAD > dist/source/vin-linuxmanager-${GITHUB_REF_NAME#v}.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vin-linuxmanager-source
+          path: dist/source/*.tar.gz
+
+  publish:
+    name: Publish GitHub release
+    needs: [deb, source]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Flatten release artifacts
+        run: |
+          mkdir -p release
+          find dist -type f -exec cp {} release/ \;
+          sha256sum release/* > release/SHA256SUMS
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" release/* \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "VIN-LinuxManager ${GITHUB_REF_NAME}" \
+            --generate-notes

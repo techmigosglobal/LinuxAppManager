@@ -1,7 +1,7 @@
 Source: linux-app-manager
 Section: admin
 Priority: optional
-Maintainer: Linux App Manager maintainers <linux-app-manager-maintainers@example.org>
+Maintainer: VIN-LinuxManager maintainers <linux-app-manager-maintainers@example.org>
 Build-Depends: debhelper-compat (= 13), cargo (>= 1.90), rustc (>= 1.90), python3, python3-gi, gir1.2-gtk-4.0, gir1.2-adw-1
 Standards-Version: 4.7.0
 Rules-Requires-Root: no
@@ -10,5 +10,5 @@ Package: linux-app-manager
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, python3, python3-gi, gir1.2-gtk-4.0, gir1.2-adw-1, policykit-1
 Description: safe cross-source Linux software manager
- Linux App Manager inventories desktop applications and packages from common
+ VIN-LinuxManager inventories desktop applications and packages from common
  Linux software sources and shows a reviewed removal transaction before change.

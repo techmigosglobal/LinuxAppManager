@@ -37,8 +37,9 @@ part of any package artifact; newer binaries must tolerate older schemas.
 
 ## External prerequisites
 
-Store publication still requires maintainer identity, repository URLs, signing
-keys, review metadata, screenshots, a confirmed project license, and
-store-specific acceptance. The packaging metadata currently uses
-`GPL-3.0-or-later` provisionally; confirm that legal choice before publishing.
-Those values are intentionally not invented or committed here.
+Store publication still requires maintainer identity, signing keys, review
+metadata, screenshots, a confirmed project license, and store-specific
+acceptance. The public repository identity and first-release Flatpak ID are now
+set to `techmigosglobal/LinuxAppManager` and
+`io.github.techmigosglobal.LinuxAppManager`; publisher-owned legal and account
+details must still be confirmed before submission.

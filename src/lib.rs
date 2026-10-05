@@ -1,4 +1,4 @@
-//! Linux App Manager core: discovery, classification, safety rules and provider adapters.
+//! VIN-LinuxManager core: discovery, classification, safety rules and provider adapters.
 pub mod classifier;
 pub mod cleanup;
 pub mod discovery;

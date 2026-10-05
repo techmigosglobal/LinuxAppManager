@@ -1,6 +1,6 @@
-# Linux App Manager distribution and store guide
+# VIN-LinuxManager distribution and store guide
 
-This guide explains how to turn a tagged Linux App Manager release into native
+This guide explains how to turn a tagged VIN-LinuxManager release into native
 packages, Flatpak/Snap artifacts, repository metadata, and a staged public
 release.
 
@@ -51,10 +51,10 @@ repository:
    and testing it.
 7. Signing keys held outside the source tree and a protected CI environment.
 
-The current tree still contains values such as
-`replace-before-release.example.org`, `REPLACE_WITH_TAG_COMMIT`, and a
-provisional `GPL-3.0-or-later` declaration. A release audit that validates XML
-or a spec file is not proof that those publication values are acceptable.
+The public source repository is `https://github.com/techmigosglobal/LinuxAppManager`
+and the first-release Flatpak identity is `io.github.techmigosglobal.LinuxAppManager`.
+Maintainer contact, legal license confirmation, signing keys, store accounts,
+and a production website domain still need to be supplied by the publisher.
 
 ## 3. Common release procedure
 
@@ -369,11 +369,11 @@ flatpak-builder --force-clean \
   --repo="$RELEASE_DIR/flatpak/repo" \
   --install \
   "$RELEASE_DIR/flatpak/builddir" \
-  "$RELEASE_DIR/flatpak/io.github.linuxappmanager.Lam.yml"
+  "$RELEASE_DIR/flatpak/io.github.techmigosglobal.LinuxAppManager.yml"
 
-flatpak run io.github.linuxappmanager.Lam
+flatpak run io.github.techmigosglobal.LinuxAppManager
 flatpak run --command=flatpak-builder-lint org.flatpak.Builder \
-  manifest "$RELEASE_DIR/flatpak/io.github.linuxappmanager.Lam.yml"
+  manifest "$RELEASE_DIR/flatpak/io.github.techmigosglobal.LinuxAppManager.yml"
 flatpak run --command=flatpak-builder-lint org.flatpak.Builder \
   repo "$RELEASE_DIR/flatpak/repo"
 ```
@@ -386,7 +386,7 @@ is useful for private testing, but it is not the Flathub submission:
 flatpak build-bundle \
   "$RELEASE_DIR/flatpak/repo" \
   "$RELEASE_DIR/flatpak/linux-app-manager.flatpak" \
-  io.github.linuxappmanager.Lam \
+  io.github.techmigosglobal.LinuxAppManager \
   --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo
 ```
 

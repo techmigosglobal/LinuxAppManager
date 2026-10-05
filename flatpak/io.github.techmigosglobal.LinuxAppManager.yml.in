@@ -1,4 +1,4 @@
-app-id: io.github.linuxappmanager.Lam
+app-id: io.github.techmigosglobal.LinuxAppManager
 runtime: org.gnome.Platform
 runtime-version: '48'
 sdk: org.gnome.Sdk
@@ -20,9 +20,10 @@ modules:
       - install -Dm755 target/release/lam /app/libexec/linux-app-manager/lam
       - install -Dm755 gui/app.py /app/libexec/linux-app-manager/app.py
       - install -Dm755 packaging/flatpak-launcher /app/bin/linux-app-manager
-      - install -Dm644 packaging/io.github.linuxappmanager.Lam.desktop /app/share/applications/io.github.linuxappmanager.Lam.desktop
-      - install -Dm644 packaging/io.github.linuxappmanager.Lam.metainfo.xml /app/share/metainfo/io.github.linuxappmanager.Lam.metainfo.xml
-      - install -Dm644 packaging/io.github.linuxappmanager.Lam.svg /app/share/icons/hicolor/scalable/apps/io.github.linuxappmanager.Lam.svg
+      - install -Dm644 packaging/io.github.techmigosglobal.LinuxAppManager.desktop /app/share/applications/io.github.techmigosglobal.LinuxAppManager.desktop
+      - install -Dm644 packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml /app/share/metainfo/io.github.techmigosglobal.LinuxAppManager.metainfo.xml
+      - install -Dm644 packaging/io.github.techmigosglobal.LinuxAppManager.svg /app/share/icons/hicolor/scalable/apps/io.github.techmigosglobal.LinuxAppManager.svg
+      - install -Dm644 packaging/io.github.techmigosglobal.LinuxAppManager.png /app/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
     sources:
       - type: git
         url: '@SOURCE_URL@'

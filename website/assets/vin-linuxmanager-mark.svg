@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.48" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5eead4"/>
+      <stop offset="1" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#312e81"/>
+    </linearGradient>
+    <radialGradient id="core" cx="50%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#fff7ad"/>
+      <stop offset="0.35" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </radialGradient>
+  </defs>
+  <path d="M64 9c3 0 6 1 9 3l39 23c4 2 6 6 6 11v20c0 5-2 9-6 11L77 99 64 91V67l27-16-27-16z" fill="url(#blue)"/>
+  <path d="M49 29 64 38 37 54v28l27 16v22c-4 2-8 2-12 0L12 98c-4-2-6-6-6-11V64c0-5 2-9 6-11z" fill="url(#teal)"/>
+  <path d="m79 49 37 22c3 2 5 6 5 10v7c0 5-2 9-6 11l-39 23c-4 2-8 2-12 0l-15-9V91l15 9 27-16-27-16z" fill="url(#violet)"/>
+  <path d="m64 45 12 7v18l-12 7-12-7V52z" fill="#0f172a" opacity=".94"/>
+  <path d="m64 49 9 5v14l-9 5-9-5V54z" fill="url(#core)"/>
+</svg>

@@ -5,12 +5,24 @@ ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 failures=0
-for required in Cargo.toml Cargo.lock README.md packaging/io.github.linuxappmanager.Lam.desktop packaging/io.github.linuxappmanager.Lam.metainfo.xml packaging/io.github.linuxappmanager.Lam.svg; do
+for required in Cargo.toml Cargo.lock README.md packaging/io.github.techmigosglobal.LinuxAppManager.desktop packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml packaging/io.github.techmigosglobal.LinuxAppManager.svg packaging/io.github.techmigosglobal.LinuxAppManager.png; do
   if [[ ! -f "$required" ]]; then
     echo "missing release input: $required" >&2
     failures=$((failures + 1))
   fi
 done
+
+if ! python3 - <<'PY'
+from pathlib import Path
+
+png_signature = b"\x89PNG\r\n\x1a\n"
+if Path("packaging/io.github.techmigosglobal.LinuxAppManager.png").read_bytes()[:8] != png_signature:
+    raise SystemExit("release icon is not a PNG image")
+print("release PNG icon: valid")
+PY
+then
+  failures=$((failures + 1))
+fi
 
 if rg -n -i "(password|secret|api[_-]?key|token)[[:space:]]*[:=][[:space:]]*[\"']?[A-Za-z0-9_./+-]{12,}" \
   --glob '!target/**' --glob '!Cargo.lock' .; then
@@ -20,7 +32,7 @@ fi
 
 if ! python3 - <<'PY'
 import xml.etree.ElementTree as ET
-ET.parse('packaging/io.github.linuxappmanager.Lam.metainfo.xml')
+ET.parse('packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml')
 print('AppStream XML: valid')
 PY
 then
@@ -28,6 +40,10 @@ then
 fi
 
 if ! python3 -m py_compile gui/app.py tests/gui_smoke.py tests/gui_accessibility_smoke.py; then
+  failures=$((failures + 1))
+fi
+
+if ! ./scripts/verify-website.sh; then
   failures=$((failures + 1))
 fi
 

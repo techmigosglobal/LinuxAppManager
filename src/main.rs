@@ -13,7 +13,7 @@ use lam_core::util::human_size;
 use serde_json::json;
 use std::process::Command;
 
-const HELP: &str = "lam — Linux App Manager (core CLI)
+const HELP: &str = "lam — VIN-LinuxManager Linux software manager (core CLI)
 
 USAGE:
   lam providers [--json]              show provider availability and scan health
