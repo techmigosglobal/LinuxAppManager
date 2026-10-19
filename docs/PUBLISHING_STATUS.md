@@ -142,10 +142,11 @@ See the [official classic-confinement review guidance](https://snapcraft.io/docs
   be described as complete until the pull request is merged and the first
   build is available in Flathub.
 
-## GitHub source state
+## Current source and artifact state
 
-The source and publication metadata in this checkout are pushed to the
-`main` branch of the [LinuxAppManager repository](https://github.com/techmigosglobal/LinuxAppManager).
-Generated Snap binaries and build logs remain outside Git history in the ignored
-`dist/snap-builds/` directory; the store/release artifact is the appropriate
-publication channel for those files.
+The implementation is pushed on `codex/linux-publishing-0.1.1` in
+[draft PR #1](https://github.com/techmigosglobal/LinuxAppManager/pull/1).
+It has not been merged, and `v0.1.1` has not been tagged or published.
+The uploaded Snap and its builder report are retained locally in the ignored
+`dist/snap-builds/0.1.1/` directory and as artifacts of the linked Snap run.
+Credentials and private signing keys are not included.

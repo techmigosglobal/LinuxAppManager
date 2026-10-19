@@ -158,6 +158,25 @@ class AptRepositoryTests(unittest.TestCase):
         subprocess.run(["apt-get", "-c", str(config), "download", "linux-app-manager=0.1.10+ubuntu24.04"],
                        cwd=sandbox / "downloads", check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(len(list((sandbox / "downloads").glob("*.deb"))), 1)
+        # Exercise APT's trust decision as well as gpgv in isolation. A fresh
+        # repository URL prevents an earlier authenticated cache masking it.
+        tampered_repository = self.root / "apt-tampered-repository"
+        shutil.copytree(self.repository, tampered_repository)
+        index = tampered_repository / "dists/ubuntu24.04/InRelease"
+        original = index.read_bytes()
+        altered = original.replace(b"Origin: VIN-LinuxManager", b"Origin: altered")
+        self.assertNotEqual(original, altered)
+        index.write_bytes(altered)
+        (sandbox / "etc/sources.list").write_text(
+            f"deb [arch=amd64 signed-by={self.repository}/vin-linuxmanager.gpg] "
+            f"file:{tampered_repository} ubuntu24.04 main\n"
+        )
+        rejected = subprocess.run(
+            ["apt-get", "-c", str(config), "-o", "APT::Update::Error-Mode=any", "update"],
+            text=True, capture_output=True, env={**os.environ, "LC_ALL": "C"},
+        )
+        self.assertNotEqual(rejected.returncode, 0, rejected.stdout + rejected.stderr)
+        self.assertIn("signature", (rejected.stdout + rejected.stderr).lower())
 
 
 class ReleaseSelectionTests(unittest.TestCase):
