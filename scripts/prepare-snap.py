@@ -34,8 +34,14 @@ def prepare(appdir, report, commit):
         if not path.is_file() or path.is_symlink():
             continue
         with path.open("rb") as stream:
-            if stream.read(4) != b"\x7fELF":
-                continue
+            header = stream.read(20)
+        if header[:4] != b"\x7fELF" or len(header) < 20:
+            continue
+        byteorder = "little" if header[5] == 1 else "big"
+        if int.from_bytes(header[16:18], byteorder) not in (2, 3):
+            # Python ships build-configuration .o files; these have no loader
+            # or dynamic section and must not be passed to patchelf.
+            continue
         relative = os.path.relpath(appdir / "usr/lib", path.parent)
         rpath = f"$ORIGIN/{relative}:/snap/core24/current/lib/x86_64-linux-gnu:/snap/core24/current/usr/lib/x86_64-linux-gnu"
         interpreter = subprocess.run(["patchelf", "--print-interpreter", str(path)], capture_output=True, text=True)

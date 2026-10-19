@@ -82,3 +82,15 @@ class SnapPackagingTests(unittest.TestCase):
             self.assertNotIn(temporary, rpath)
             if Path(loader).is_file():
                 subprocess.run([str(executable)], check=True)
+
+    @unittest.skipUnless(shutil.which("cc"), "object fixture requires a C compiler")
+    def test_relocatable_object_files_are_preserved(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            report = self.fixture(root)
+            object_file = root / "usr/python.o"
+            subprocess.run(["cc", "-x", "c", "-c", "-o", str(object_file), "-"],
+                           input="int metadata_fixture;", text=True, check=True)
+            before = object_file.read_bytes()
+            module.prepare(root, report, "a" * 40)
+            self.assertEqual(before, object_file.read_bytes())
