@@ -16,6 +16,7 @@ BuildRequires:  gtk4
 BuildRequires:  libadwaita
 Requires:       python3
 Requires:       python3-gobject
+Requires:       gobject-introspection
 # The Python frontend loads GI dynamically, so ELF autodeps cannot infer these.
 # ToolbarView was introduced in libadwaita 1.4; older runtimes cannot launch it.
 Requires:       gtk4 >= 4.0

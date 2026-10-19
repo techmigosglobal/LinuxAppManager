@@ -16,7 +16,7 @@ tags until clean-desktop installation acceptance is recorded.
 Local evidence on 2026-10-19:
 
 - All Rust tests, formatting and Clippy passed.
-- 28 publishing-tooling tests passed, including real temporary GPG signatures,
+- 36 publishing-tooling tests passed, including real temporary GPG signatures,
   tamper rejection, deterministic source archives, native recipe contracts,
   AppImage subprocess isolation, retained package versions, and an isolated
   APT client downloading the previous version from a signed test repository.
@@ -33,11 +33,43 @@ Local evidence on 2026-10-19:
 - Recipe, desktop entry and AppStream validation passed. Actual target-builder
   installation logs are required separately.
 
+Hosted builder evidence:
+
+- [Native preflight](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39260817091)
+  built and audited all six targets. Detailed logs exposed failed native GUI
+  checks that were masked by `tee`: Fedora lacked the Cairo typelib dependency;
+  the other builders' smoke check raced the normal asynchronous startup scan.
+  Failure propagation, the RPM dependency and the smoke check were corrected.
+  Fresh-container GUI/removal acceptance requires the corrected rerun.
+- The same preflight genuinely passed signed APT installation and removal from
+  generated repository metadata for Ubuntu 24.04, Ubuntu 26.04 and Debian 13;
+  each suite's explicit success marker was inspected. Its signing key was an
+  ephemeral test key, not the production repository key.
+- [Snap installed-runtime validation](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39261014478)
+  passed packed-file checks and an actual `snap install --dangerous --classic`
+  on Ubuntu 24.04. `snap run` inventoried 1,250 packages, opened the bundled GUI,
+  and refused host removal. This is automated runner evidence, not clean desktop
+  VM or public store installation acceptance.
+- The Snap uses the portable Python 3.12/GTK4/libadwaita runtime, relocated
+  launch paths and core24 loader. Packaging pins patchelf 0.16.1 by SHA-256;
+  newer versions reproduced a Python loader crash and are not used for this build.
+
 Current account/store boundaries:
 
-- `snapcraft status vin-linux-app-manager` failed because this execution shell
-  cannot access the Snapcraft keyring. `snap info vin-linux-app-manager` reported
-  no public snap. No new upload or promotion was attempted.
+- Desktop-session keyring access restored authenticated Snapcraft CLI access
+  for publisher `techmigos`. The listing title, Utilities category, read-only
+  description, website, GPL-3.0-or-later license, icon and three screenshots
+  were saved and verified after reload.
+- Revision **3**, a new `0.1.1` amd64 candidate, was uploaded once with `--release=edge` on
+  2026-10-19. The store returned `(NEEDS REVIEW) confinement 'classic' not allowed`.
+  This is a store review hold; no edge, candidate or stable publication is claimed.
+- Candidate SHA-256: `b0189975685706da57f4b94806573271504c8bfdb98da430cb1824145e518eb9`.
+  Its embedded source commit is `b2c643521f4bbf12df571823d8152caefc2f88d8`
+  (the PR merge commit built by the linked Snap validation run).
+- The [prepared eligibility request](SNAP_REVIEW_REQUEST.md) acknowledges that
+  Canonical lists management snaps as unsupported for classic confinement.
+  A strict edition is not validated: existing host queries would need explicit
+  metadata access and provider-specific changes to report actual host inventory.
 - No configured Copr credentials or verified Copr project were found. AUR
   publication also requires a maintainer account and authenticated repository.
 - Flathub policy review is required before submission. Its current requirements
@@ -77,10 +109,9 @@ build or a registered store name is not the same as a published release.
 - The earlier store response also flagged `classic` confinement for manual
   review. Therefore no edge or stable revision is claimed as published.
 
-### Next Snap action from an interactive desktop terminal
+### Historical command (superseded by the 0.1.1 upload above)
 
-Run this only after confirming the desktop session can read the existing
-Snapcraft credentials:
+Do not rerun this old upload. It is retained only as historical context:
 
 ```sh
 cd /home/vinay/Documents/linux-app-manager-core/linux-app-manager

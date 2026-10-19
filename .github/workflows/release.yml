@@ -186,6 +186,7 @@ jobs:
           BUILD_TARGET: ${{ matrix.target }}
           BUILD_IMAGE: ${{ matrix.image }}
         run: |
+          set -euo pipefail
           docker run --rm --network bridge \
             -v "$PWD:/workspace:ro" -v "$PWD/dist/native:/packages:ro" \
             -e LAM_DISPOSABLE_BUILDER=1 "$BUILD_IMAGE" \
@@ -230,6 +231,7 @@ jobs:
             --output "$RUNNER_TEMP/apt-test-repository" --key-id "$fingerprint"
       - name: Install through APT on each target distribution
         run: |
+          set -euo pipefail
           for suite in ubuntu24.04 ubuntu26.04 debian13; do
             case "$suite" in
               ubuntu24.04) image=ubuntu:24.04 ;;
