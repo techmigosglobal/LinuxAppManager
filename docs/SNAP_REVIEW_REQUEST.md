@@ -9,10 +9,20 @@ Eligibility guidance for vin-linux-app-manager: read-only host package inventory
 
 ## Proposed request
 
-Snap name: `vin-linux-app-manager`  
-Publisher: `techmigos` (upstream publisher)  
-Upstream: https://github.com/techmigosglobal/LinuxAppManager  
+- name: `vin-linux-app-manager`
+- description: Read-only GTK4/libadwaita inventory of host applications and packages.
+- snapcraft: https://github.com/techmigosglobal/LinuxAppManager/blob/6a776499e95e7dd70f11cb88d8e7e4c121843406/snap/snapcraft.yaml
+- upstream: https://github.com/techmigosglobal/LinuxAppManager
+- upstream-relation: `techmigos`, the upstream publisher.
+- supported-category: No supported classic category identified; requesting eligibility guidance for this read-only inventory utility.
+- reasoning: The current provider implementation queries host package-manager tools and metadata. See the technical limitations below.
+
 Listing: https://snapcraft.io/vin-linux-app-manager
+
+I understand that strict confinement is preferred. A working strict prototype
+and an interface trial have not been completed; the assessment below is based
+on the current provider implementation. I am not claiming that existing
+interfaces have already been proven insufficient.
 
 VIN-LinuxManager is a GTK4/libadwaita utility for viewing installed applications,
 package details, provider health, duplicate installations and local history.
@@ -54,3 +64,5 @@ and record the topic URL in PUBLISHING_STATUS.md.
 Do not repeatedly upload the same package to work around a review hold.
 
 Policy: https://snapcraft.io/docs/reference/administration/reviewing-classic-confinement-snaps/
+
+Request format: https://forum.snapcraft.io/t/about-the-classic-confinement-category/43830

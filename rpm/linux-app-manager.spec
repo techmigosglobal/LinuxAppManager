@@ -21,6 +21,8 @@ Requires:       gobject-introspection
 # ToolbarView was introduced in libadwaita 1.4; older runtimes cannot launch it.
 Requires:       gtk4 >= 4.0
 Requires:       libadwaita >= 1.4
+# GTK's renderer opens GLES dynamically; a minimal Fedora 43 install lacks it.
+Requires:       libglvnd-gles >= 1.7
 Requires:       polkit
 
 %description
