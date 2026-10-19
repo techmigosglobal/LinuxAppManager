@@ -65,6 +65,7 @@ def prepare(appdir, report, commit):
         "version": manifest["version"], "source_commit": commit,
         "confinement": "classic", "grade": "devel", "host_mutations": False,
         "base": "core24", "base_linked_elf_files": patched,
+        "patchelf": subprocess.check_output(["patchelf", "--version"], text=True).strip() if patched else None,
         "runtime": actual,
     }, indent=2) + "\n")
     return manifest["name"], manifest["version"]

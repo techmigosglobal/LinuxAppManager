@@ -7,7 +7,7 @@ report=$(realpath "$2")
 commit="$3"
 output=$(realpath -m "$4")
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-for tool in snap unsquashfs patchelf python3 xvfb-run dbus-run-session; do
+for tool in snap unsquashfs curl sha256sum tar python3 xvfb-run dbus-run-session; do
   command -v "$tool" >/dev/null || { echo "missing Snap packaging dependency: $tool" >&2; exit 1; }
 done
 [[ -f /snap/core24/current/lib64/ld-linux-x86-64.so.2 ]] || {
@@ -15,6 +15,13 @@ done
 }
 work=$(mktemp -d "${TMPDIR:-/tmp}/lam-snap.XXXXXXXX")
 trap 'rm -rf "$work"' EXIT
+# patchelf >=0.17 corrupts Ubuntu's non-PIE Python ELF headers when growing
+# RPATH (upstream issue NixOS/patchelf#446). Pin the verified build tool.
+curl --fail --location --retry 3 https://github.com/NixOS/patchelf/releases/download/0.16.1/patchelf-0.16.1-x86_64.tar.gz -o "$work/patchelf.tar.gz"
+printf '%s  %s\n' 4dc40fdd3b6bc108b7b9b9641e54cc3782bdea4199a7c79d9106fd6192a3e926 "$work/patchelf.tar.gz" | sha256sum --check --status
+mkdir "$work/tools"
+tar -xzf "$work/patchelf.tar.gz" -C "$work/tools"
+export PATH="$work/tools/bin:$PATH"
 chmod +x "$image"
 (cd "$work" && "$image" --appimage-extract >/dev/null)
 appdir="$work/squashfs-root"

@@ -19,13 +19,6 @@ def main():
     lam = root / "usr/bin/lam"
     if sys.argv[1:2] == ["--cli"]:
         os.execve(lam, [str(lam), *sys.argv[2:]], host_environment())
-    import gi
-
-    gi.require_version("Gtk", "4.0")
-    gi.require_version("Adw", "1")
-    from gi.repository import Adw
-    import app
-
     with tempfile.TemporaryDirectory(prefix="vin-linuxmanager-pixbuf-") as temporary:
         query = root / "usr/bin/gdk-pixbuf-query-loaders"
         loaders = sorted((root / "usr/lib/gdk-pixbuf-loaders").glob("*.so"))
@@ -34,6 +27,14 @@ def main():
             output = subprocess.check_output([str(query), *(str(path) for path in loaders)])
             cache.write_bytes(output)
             os.environ["GDK_PIXBUF_MODULE_FILE"] = str(cache)
+            os.environ["GDK_PIXBUF_MODULEDIR"] = str(root / "usr/lib/gdk-pixbuf-loaders")
+        # GTK may initialize pixbuf while its typelib is imported. Configure
+        # loaders first, so a newer host SVG loader cannot enter this runtime.
+        import gi
+        gi.require_version("Gtk", "4.0")
+        gi.require_version("Adw", "1")
+        from gi.repository import Adw
+        import app
         if sys.argv[1:] == ["--appimage-smoke-test"]:
             application = Adw.Application(application_id="io.github.techmigosglobal.LinuxAppManager.Smoke")
             application.register()
