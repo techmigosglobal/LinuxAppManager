@@ -83,3 +83,24 @@ jobs:
       - name: Deploy website and repository together
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify public installation from each signed APT suite
+        run: |
+          set -euo pipefail
+          mkdir -p public-install-evidence
+          for suite in ubuntu24.04 ubuntu26.04 debian13; do
+            case "$suite" in
+              ubuntu24.04) image=ubuntu:24.04 ;;
+              ubuntu26.04) image=ubuntu:26.04 ;;
+              debian13) image=debian:13 ;;
+            esac
+            docker run --rm -e LAM_DISPOSABLE_BUILDER=1 \
+              -v "$PWD:/workspace:ro" "$image" \
+              bash /workspace/scripts/smoke-public-apt.sh "$suite" \
+              2>&1 | tee "public-install-evidence/$suite.txt"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-apt-installation
+          path: public-install-evidence/
+          if-no-files-found: ignore

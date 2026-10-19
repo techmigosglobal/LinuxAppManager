@@ -13,6 +13,27 @@ import sys
 import sysconfig
 import tomllib
 
+def parse_dpkg_owners(output):
+    """Read ownership records without treating dpkg diversion prose as names."""
+    identifier = r"[a-z0-9][a-z0-9+.-]*(?::[a-z0-9][a-z0-9-]*)?"
+    packages = set()
+    for line in output.splitlines():
+        owners, separator, _path = line.partition(": /")
+        if not separator:
+            continue
+        diversion = re.fullmatch(rf"diversion by ({identifier}) (?:from|to)", owners)
+        if diversion:
+            # Include the real diverting package's license as well as any ordinary
+            # ownership records. Local/admin diversions identify no package.
+            packages.add(diversion.group(1))
+            continue
+        for owner in owners.split(","):
+            owner = owner.strip()
+            if re.fullmatch(identifier, owner):
+                packages.add(owner)
+    return packages
+
+
 source, appdir, binary = map(lambda path: Path(path).resolve(), sys.argv[1:])
 copied = set()
 
@@ -124,9 +145,7 @@ packages = set()
 paths = sorted(path for path in copied if not path.startswith(str(source)))
 for index in range(0, len(paths), 150):
     result = subprocess.run(["dpkg-query", "-S", *paths[index:index + 150]], text=True, capture_output=True)
-    for line in result.stdout.splitlines():
-        if ": /" in line:
-            packages.update(line.split(": /", 1)[0].split(", "))
+    packages.update(parse_dpkg_owners(result.stdout))
 inventory = []
 for package in sorted(packages):
     version = subprocess.check_output(["dpkg-query", "-W", "-f=${Version}", package], text=True)

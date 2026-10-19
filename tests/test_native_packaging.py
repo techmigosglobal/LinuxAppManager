@@ -77,6 +77,29 @@ class NativePackaging(unittest.TestCase):
         self.assertIn("BuildRequires:  gcc", (ROOT / "rpm/linux-app-manager.spec").read_text())
 
 
+class InstalledLicenseHardlinks(unittest.TestCase):
+    def test_identical_notices_keep_all_paths_and_exact_contents(self):
+        hardlink_spec = importlib.util.spec_from_file_location("hardlink_licenses", ROOT / "scripts/hardlink-license-files.py")
+        hardlinks = importlib.util.module_from_spec(hardlink_spec)
+        hardlink_spec.loader.exec_module(hardlinks)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            first = root / "crate-a" / "LICENSE"
+            second = root / "crate-b" / "nested" / "LICENSE"
+            distinct = root / "crate-b" / "NOTICE"
+            first.parent.mkdir()
+            second.parent.mkdir(parents=True)
+            first.write_bytes(b"exact shared license\r\n")
+            second.write_bytes(first.read_bytes())
+            distinct.write_bytes(b"different copyright holder\n")
+            before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+            self.assertEqual(hardlinks.deduplicate(root), 1)
+            self.assertEqual(first.stat().st_ino, second.stat().st_ino)
+            self.assertNotEqual(first.stat().st_ino, distinct.stat().st_ino)
+            self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+            self.assertEqual(hardlinks.deduplicate(root), 0)
+
+
 class VendorLicenses(unittest.TestCase):
     def crate(self, root, license_id="MIT", license_file=None):
         crate = root / "vendor" / "example-1.2.3"

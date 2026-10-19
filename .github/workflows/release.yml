@@ -171,7 +171,7 @@ jobs:
             "$BUILD_IMAGE" bash -euxo pipefail -c '
               if [[ "$BUILD_FAMILY" == deb ]]; then
                 apt-get update
-                DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential debhelper-compat dpkg-dev python3 python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 pkexec desktop-file-utils appstream lintian
+                DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential pkg-config debhelper-compat dpkg-dev python3 python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 pkexec desktop-file-utils appstream lintian
               elif [[ "$BUILD_FAMILY" == rpm ]]; then
                 dnf install -y rpm-build rpmdevtools gcc glibc-devel cargo rust elfutils python3 python3-gobject gtk4 libadwaita polkit desktop-file-utils appstream rpmlint
               else
@@ -196,6 +196,57 @@ jobs:
           name: linux-app-manager-${{ matrix.target }}
           path: dist/native/*
           if-no-files-found: error
+
+  apt_repository:
+    name: Verify signed APT repository installation
+    needs: [verify, native]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.verify.outputs.commit }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: linux-app-manager-*
+          path: artifacts
+      - name: Compose test-signed repository from actual distro packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-utils appstream python3-pil gnupg
+          mkdir -p "$RUNNER_TEMP/packages" apt-install-evidence
+          for suite in ubuntu24.04 ubuntu26.04 debian13; do
+            mkdir -p "$RUNNER_TEMP/packages/$suite"
+            find artifacts -type f -name "linux-app-manager_*${suite}*_amd64.deb" \
+              -exec cp {} "$RUNNER_TEMP/packages/$suite/" \;
+          done
+          export GNUPGHOME="$RUNNER_TEMP/apt-test-key"
+          install -d -m 700 "$GNUPGHOME"
+          trap 'gpgconf --kill gpg-agent || true; rm -rf "$GNUPGHOME"' EXIT
+          gpg --batch --pinentry-mode loopback --passphrase '' \
+            --quick-generate-key 'Release preflight <preflight@invalid.local>' ed25519 sign 1d
+          fingerprint=$(gpg --with-colons --list-secret-keys | awk -F: '$1=="fpr" {print $10; exit}')
+          python3 scripts/build-apt-repository.py --packages "$RUNNER_TEMP/packages" \
+            --output "$RUNNER_TEMP/apt-test-repository" --key-id "$fingerprint"
+      - name: Install through APT on each target distribution
+        run: |
+          for suite in ubuntu24.04 ubuntu26.04 debian13; do
+            case "$suite" in
+              ubuntu24.04) image=ubuntu:24.04 ;;
+              ubuntu26.04) image=ubuntu:26.04 ;;
+              debian13) image=debian:13 ;;
+            esac
+            docker run --rm -e LAM_DISPOSABLE_BUILDER=1 \
+              -v "$PWD:/workspace:ro" -v "$RUNNER_TEMP/apt-test-repository:/repository:ro" \
+              "$image" bash /workspace/scripts/smoke-generated-apt.sh "$suite" /repository \
+              2>&1 | tee "apt-install-evidence/$suite.txt"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apt-install-evidence
+          path: apt-install-evidence/
+          if-no-files-found: ignore
 
   appimage:
     name: Optional AppImage build and smoke
@@ -233,11 +284,12 @@ jobs:
 
   publish:
     name: Sign and publish verified artifacts
-    needs: [verify, source, native, appimage]
+    needs: [verify, source, native, apt_repository, appimage]
     if: >-
       always() && needs.verify.outputs.preflight != 'true' &&
       needs.verify.result == 'success' && needs.source.result == 'success' &&
       needs.native.result == 'success' &&
+      needs.apt_repository.result == 'success' &&
       (needs.appimage.result == 'success' || needs.appimage.result == 'skipped')
     runs-on: ubuntu-24.04
     permissions:

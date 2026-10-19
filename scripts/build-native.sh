@@ -117,19 +117,24 @@ PY
   arch)
     command -v makepkg >/dev/null
     command -v namcap >/dev/null
-    "$script_root/scripts/render-aur.py" "$source_archive" "$work/aur"
-    missing="$(pacman -T python python-gobject gtk4 libadwaita polkit 'rust>=1.90' gcc pkgconf || true)"
-    [[ -z "$missing" ]] || { echo "Arch dependencies missing: $missing" >&2; exit 1; }
-    # Use the checksummed local archive so makepkg requires no source download.
-    cp "$source_archive" "$work/aur/"
+    # Arch forbids every makepkg operation as root, including --printsrcinfo
+    # inside the renderer. Establish one unprivileged context before rendering.
     if [[ "$(id -u)" == 0 ]]; then
       id lam-builder >/dev/null 2>&1 || useradd --create-home lam-builder
       chown -R lam-builder:lam-builder "$work" "$CARGO_HOME"
       chmod o+x "$work"
-      runuser -u lam-builder -- env PATH="$PATH" CARGO_HOME="$CARGO_HOME" CARGO_NET_OFFLINE=true RUSTUP_TOOLCHAIN=1.90.0 bash -c 'cd "$1"; makepkg --cleanbuild --noconfirm --check' _ "$work/aur"
+      run_arch_user() {
+        runuser -u lam-builder -- env PATH="$PATH" CARGO_HOME="$CARGO_HOME" CARGO_NET_OFFLINE=true RUSTUP_TOOLCHAIN=1.90.0 "$@"
+      }
     else
-      (cd "$work/aur" && makepkg --cleanbuild --noconfirm --check)
+      run_arch_user() { "$@"; }
     fi
+    run_arch_user python3 "$script_root/scripts/render-aur.py" "$source_archive" "$work/aur"
+    missing="$(pacman -T python python-gobject gtk4 libadwaita polkit 'rust>=1.90' gcc pkgconf || true)"
+    [[ -z "$missing" ]] || { echo "Arch dependencies missing: $missing" >&2; exit 1; }
+    # Use the checksummed local archive so makepkg requires no source download.
+    cp "$source_archive" "$work/aur/"
+    run_arch_user bash -c 'cd "$1"; makepkg --cleanbuild --noconfirm --check' _ "$work/aur"
     mapfile -t packages < <(find "$work/aur" -maxdepth 1 -name '*.pkg.tar.zst')
     (( ${#packages[@]} > 0 )) || { echo 'no Arch packages produced' >&2; exit 1; }
     namcap "$work/aur/PKGBUILD" "${packages[@]}"

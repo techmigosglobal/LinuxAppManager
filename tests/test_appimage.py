@@ -3,6 +3,7 @@
 
 import ast
 import os
+import re
 from pathlib import Path
 import subprocess
 import unittest
@@ -18,6 +19,37 @@ def load_environment_policy():
     namespace = {"os": os}
     exec(compile(ast.Module(body=[function], type_ignores=[]), "gui/app.py", "exec"), namespace)
     return namespace["host_cli_environment"]
+
+
+class AppImageOwnershipTests(unittest.TestCase):
+    def parse(self, output):
+        tree = ast.parse((ROOT / "packaging/appimage/bundle.py").read_text())
+        function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                        and node.name == "parse_dpkg_owners")
+        namespace = {"re": re}
+        exec(compile(ast.Module(body=[function], type_ignores=[]), "bundle.py", "exec"), namespace)
+        return namespace["parse_dpkg_owners"](output)
+
+    def test_dpkg_diversions_preserve_real_package_names(self):
+        # dpkg-query -S emits these extra records for Ubuntu's t64 diversions.
+        output = """diversion by libreadline8t64 from: /lib/x86_64-linux-gnu/libreadline.so.8
+        diversion by libreadline8t64 to: /lib/x86_64-linux-gnu/libreadline.so.8.usr-is-merged
+        libreadline8t64:amd64: /usr/lib/x86_64-linux-gnu/libreadline.so.8
+        libgtk-4-1:amd64, libgtk-4-common: /usr/share/doc/gtk/copyright
+        diversion by libexample2:amd64 from: /usr/lib/libexample.so.2
+        local diversion from: /usr/bin/example
+        local diversion to: /usr/bin/example.distrib
+        invalid package name: /usr/lib/invalid.so
+        diversion by Invalid from: /usr/lib/invalid.so
+        """
+        self.assertEqual(self.parse("\n".join(line.strip() for line in output.splitlines())), {
+            "libreadline8t64", "libreadline8t64:amd64", "libgtk-4-1:amd64",
+            "libgtk-4-common", "libexample2:amd64",
+        })
+
+    def test_malformed_or_non_absolute_records_are_ignored(self):
+        self.assertEqual(self.parse("no packages found\nBadOwner: /path\nvalid: relative/path\n"
+                                   "package;command: /path\nname:amd64:extra: /path\n"), set())
 
 
 class AppImageEnvironmentTests(unittest.TestCase):
