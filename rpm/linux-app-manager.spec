@@ -1,17 +1,21 @@
 Name:           linux-app-manager
-Version:        0.1.0
+Version:        0.1.1
 Release:        1%{?dist}
 Summary:        VIN-LinuxManager safe cross-source Linux software manager
 License:        GPL-3.0-or-later
 URL:            https://github.com/techmigosglobal/LinuxAppManager
 Packager:       VIN-LinuxManager maintainers <Vin-Linux-App-Manager@techmigos.com>
 Source0:        %{name}-%{version}.tar.gz
-BuildRequires:  cargo
+ExclusiveArch:  x86_64
+BuildRequires:  gcc
+BuildRequires:  glibc-devel
+BuildRequires:  cargo >= 1.90
 BuildRequires:  rust >= 1.90
 BuildRequires:  elfutils
 BuildRequires:  python3-gobject
 BuildRequires:  gtk4
 BuildRequires:  libadwaita
+Requires:       python3
 Requires:       python3-gobject
 Requires:       gtk4
 Requires:       libadwaita
@@ -25,7 +29,10 @@ Linux software sources and shows a reviewed removal transaction before change.
 %autosetup
 
 %build
-cargo build --release --locked --bin lam
+cargo build --release --locked --offline --bin lam
+
+%check
+cargo test --all-targets --locked --offline
 
 %install
 install -D -m 0755 target/release/lam %{buildroot}%{_prefix}/lib/linux-app-manager/lam
@@ -37,6 +44,8 @@ install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.svg %{bui
 install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.png %{buildroot}%{_datadir}/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
 
 %files
+%license LICENSE THIRD_PARTY_LICENSES
+%doc README.md
 %{_bindir}/linux-app-manager
 %{_prefix}/lib/linux-app-manager/lam
 %{_prefix}/lib/linux-app-manager/app.py
@@ -46,5 +55,8 @@ install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.png %{bui
 %{_datadir}/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
 
 %changelog
+* Mon Oct 19 2026 VIN-LinuxManager maintainers <Vin-Linux-App-Manager@techmigos.com> - 0.1.1-1
+- Build locked vendored sources offline and include license and documentation
+
 * Mon Oct 05 2026 VIN-LinuxManager maintainers <Vin-Linux-App-Manager@techmigos.com> - 0.1.0-1
 - Initial productionization track

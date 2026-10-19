@@ -1,22 +1,31 @@
 pkgname=linux-app-manager
-pkgver=0.1.0
+pkgver=@VERSION@
 pkgrel=1
 pkgdesc='Safe cross-source Linux software manager'
 arch=('x86_64')
 url='https://github.com/techmigosglobal/LinuxAppManager'
 license=('GPL-3.0-or-later')
-depends=('python-gobject' 'gtk4' 'libadwaita' 'polkit')
-makedepends=('cargo>=1.90' 'rust>=1.90')
-source=('linux-app-manager::git+https://github.com/techmigosglobal/LinuxAppManager.git#tag=v0.1.0')
-sha256sums=('SKIP')
+depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit')
+makedepends=('rust>=1.90' 'gcc' 'pkgconf')
+source=("https://github.com/techmigosglobal/LinuxAppManager/releases/download/v${pkgver}/linux-app-manager-${pkgver}.tar.gz")
+sha256sums=('@SHA256@')
 
 build() {
-  cd "$srcdir/linux-app-manager"
-  cargo build --release --locked --bin lam
+  cd "$srcdir/linux-app-manager-$pkgver"
+  cargo build --release --locked --offline --bin lam
+}
+
+check() {
+  cd "$srcdir/linux-app-manager-$pkgver"
+  cargo test --all-targets --locked --offline
 }
 
 package() {
-  cd "$srcdir/linux-app-manager"
+  cd "$srcdir/linux-app-manager-$pkgver"
+  install -d "$pkgdir/usr/share/licenses/$pkgname"
+  cp -a THIRD_PARTY_LICENSES "$pkgdir/usr/share/licenses/$pkgname/"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
   install -Dm755 target/release/lam "$pkgdir/usr/lib/linux-app-manager/lam"
   install -Dm755 gui/app.py "$pkgdir/usr/lib/linux-app-manager/app.py"
   install -Dm755 packaging/linux-app-manager "$pkgdir/usr/bin/linux-app-manager"

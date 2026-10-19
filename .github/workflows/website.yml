@@ -1,11 +1,17 @@
-name: Website
+name: Website and APT repository
 
 on:
   push:
     branches: [main]
     paths:
       - 'website/**'
+      - 'packaging/vin-linuxmanager-release-public-key.asc'
+      - 'scripts/*apt*.py'
+      - 'scripts/prepare-pages.py'
       - '.github/workflows/website.yml'
+  workflow_run:
+    workflows: ['Release artifacts']
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -15,22 +21,65 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Install repository composition tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes apt-utils appstream gnupg python3-pil
       - name: Audit static website
         run: ./scripts/verify-website.sh
+      - name: Collect current and previous signed native release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/collect-apt-packages.py \
+            --public-key packaging/vin-linuxmanager-release-public-key.asc \
+            --output "$RUNNER_TEMP/apt-packages"
+      - name: Sign APT metadata and compose the complete Pages tree
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+        run: |
+          set -euo pipefail
+          : "${GPG_PRIVATE_KEY:?missing release signing key}"
+          : "${GPG_PASSPHRASE:?missing signing passphrase}"
+          : "${GPG_KEY_ID:?missing release key fingerprint}"
+          export GNUPGHOME
+          GNUPGHOME="$(mktemp -d "$RUNNER_TEMP/apt-signing.XXXXXX")"
+          chmod 700 "$GNUPGHOME"
+          trap 'gpgconf --kill gpg-agent || true; rm -rf "$GNUPGHOME"' EXIT
+          fingerprint="$(gpg --show-keys --with-colons packaging/vin-linuxmanager-release-public-key.asc | awk -F: '$1 == "fpr" { print $10; exit }')"
+          [[ "$fingerprint" == "$GPG_KEY_ID" ]]
+          printf '%s' "$GPG_PRIVATE_KEY" | gpg --batch --import
+          export GPG_PASSPHRASE_FILE="$GNUPGHOME/passphrase"
+          printf '%s' "$GPG_PASSPHRASE" > "$GPG_PASSPHRASE_FILE"
+          chmod 600 "$GPG_PASSPHRASE_FILE"
+          python3 scripts/build-apt-repository.py \
+            --packages "$RUNNER_TEMP/apt-packages" \
+            --output "$RUNNER_TEMP/apt-repository" --key-id "$GPG_KEY_ID"
+          python3 scripts/prepare-pages.py --website website \
+            --apt-repository "$RUNNER_TEMP/apt-repository" --output "$RUNNER_TEMP/pages"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: website
-      - name: Deploy to GitHub Pages
+          path: ${{ runner.temp }}/pages
+      - name: Deploy website and repository together
         id: deployment
         uses: actions/deploy-pages@v4

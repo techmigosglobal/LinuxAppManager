@@ -1,6 +1,57 @@
 # Publication status
 
-Updated: 2026-10-05
+Updated: 2026-10-19
+
+## v0.1.1 implementation and verification
+
+The native-first publishing implementation is prepared: six distro builders,
+offline vendored sources, signed draft releases, a signed three-suite APT
+repository, combined Pages deployment, a checksummed AUR recipe renderer and
+an optional Python/GTK AppImage. The existing signed `v0.1.0` remains public.
+
+New channels are **not yet claimed as publicly installable**. The release
+workflow has a nonpublishing preflight mode and creates drafts for official
+tags until clean-desktop installation acceptance is recorded.
+
+Local evidence on 2026-10-19:
+
+- All Rust tests, formatting and Clippy passed.
+- 28 publishing-tooling tests passed, including real temporary GPG signatures,
+  tamper rejection, deterministic source archives, native recipe contracts,
+  AppImage subprocess isolation, retained package versions, and an isolated
+  APT client downloading the previous version from a signed test repository.
+- Dependency license collection verified 31 vendored crates and preserved 64
+  exact upstream license/notice files for inclusion in native packages.
+- Pacman inventory now uses its supported installed-package query; the old
+  transaction-only option was rejected by real Pacman. Parser and isolated
+  real-Pacman regression checks passed.
+- GUI state/accessibility checks passed under Xvfb; sandboxed GUI state passed
+  with both `FLATPAK_ID` and `SNAP`. These are automated checks, not desktop VM
+  acceptance.
+- The local vendored archive resolved all dependencies offline with an empty
+  Cargo cache; it is a development snapshot, not an immutable tagged release.
+- Recipe, desktop entry and AppStream validation passed. Actual target-builder
+  installation logs are required separately.
+
+Current account/store boundaries:
+
+- `snapcraft status vin-linux-app-manager` failed because this execution shell
+  cannot access the Snapcraft keyring. `snap info vin-linux-app-manager` reported
+  no public snap. No new upload or promotion was attempted.
+- No configured Copr credentials or verified Copr project were found. AUR
+  publication also requires a maintainer account and authenticated repository.
+- Flathub policy review is required before submission. Its current requirements
+  exclude host utilities/host-dependent core functionality and prohibit
+  AI-assisted manifests and AI-driven submission interactions. The existing
+  Flatpak template has not been rewritten or submitted by this implementation.
+- Fedora Flatpak inclusion and default Ubuntu/Fedora archive discovery are
+  separate maintainer reviews, not side effects of APT/Copr publication.
+
+Use [PUBLISHING_V0.1.1.md](PUBLISHING_V0.1.1.md) for the current release,
+acceptance, promotion and rollback procedure, and [INSTALL.md](INSTALL.md) for
+installation instructions after a channel becomes public.
+
+## Historical v0.1.0 attempts (2026-10-05)
 
 This file records the publication attempts and the remaining human/store-side
 actions for VIN-LinuxManager. It is intentionally factual: a successful local

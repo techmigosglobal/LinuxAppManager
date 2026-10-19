@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Install VIN-LinuxManager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="main-content" class="section-pad">
+    <p><a href="index.html">← VIN-LinuxManager</a></p>
+    <h1>Install and update</h1>
+    <!-- APT_STATUS_START -->
+    <p>The signed <a href="https://github.com/techmigosglobal/LinuxAppManager/releases/tag/v0.1.0">v0.1.0 Debian release</a> is public. The v0.1.1 native repositories below are staged until installation acceptance is complete.</p>
+    <!-- APT_STATUS_END -->
+    <section aria-labelledby="apt-heading">
+      <h2 id="apt-heading">Ubuntu and Debian</h2>
+      <p>The signed APT repository will provide separate x86_64 suites: <code>ubuntu24.04</code>, <code>ubuntu26.04</code> and <code>debian13</code>. Follow the <a href="https://github.com/techmigosglobal/LinuxAppManager/blob/main/docs/INSTALL.md">installation guide</a> after the repository is published.</p>
+      <p>Verify the signing fingerprint before enabling a repository: <code>DE6D C03A 1F11 C017 6188 BBAC 6E75 CBCE 90CE 3F16</code>.</p>
+      <p>Adding this repository provides APT updates. Default discovery in Ubuntu App Center requires a separate official archive review.</p>
+    </section>
+    <section aria-labelledby="other-heading">
+      <h2 id="other-heading">Fedora, Arch and AppImage</h2>
+      <p>Fedora RPM packages and a Copr repository, a checksummed AUR recipe, and a bundled AppImage are being validated. Use only channels listed as published in the <a href="https://github.com/techmigosglobal/LinuxAppManager/blob/main/docs/PUBLISHING_STATUS.md">publishing status</a>.</p>
+      <p>Snap Store, Flathub and Fedora Flatpaks are separate review processes. Sandboxed editions currently disable host package changes.</p>
+    </section>
+  </main>
+</body>
+</html>

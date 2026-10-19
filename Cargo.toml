@@ -1,9 +1,11 @@
 [package]
 name = "linux-app-manager"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.90"
 description = "Unified installed-software manager for Linux (core library + lam CLI)"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/techmigosglobal/LinuxAppManager"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

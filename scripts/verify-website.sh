@@ -10,6 +10,7 @@ from pathlib import Path
 root = Path('website')
 required = [
     root / 'index.html',
+    root / 'install.html',
     root / 'styles.css',
     root / 'script.js',
     root / 'README.md',

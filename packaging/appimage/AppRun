@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+appdir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+export LAM_APPIMAGE=1
+export LAM_APPIMAGE_HOST_PATH="${LAM_APPIMAGE_HOST_PATH:-${PATH:-/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin}}"
+# Keep PATH on the host. Every bundled executable is addressed by absolute path.
+export PYTHONHOME="$appdir/usr"
+export PYTHONPATH="$appdir/usr/lib/python3/dist-packages"
+export PYTHONNOUSERSITE=1
+export LD_LIBRARY_PATH="$appdir/usr/lib"
+export GI_TYPELIB_PATH="$appdir/usr/lib/girepository-1.0"
+export GIO_MODULE_DIR="$appdir/usr/lib/gio/modules"
+unset GIO_EXTRA_MODULES GTK_PATH GTK_IM_MODULE_FILE LD_PRELOAD
+export GSETTINGS_SCHEMA_DIR="$appdir/usr/share/glib-2.0/schemas"
+export XDG_DATA_DIRS="$appdir/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+# Cairo avoids bundling a GPU driver stack which must match the host kernel.
+export GSK_RENDERER="${GSK_RENDERER:-cairo}"
+export LAM_APPIMAGE_DIRECTORY="$appdir"
+exec "$appdir/usr/bin/python3" "$appdir/usr/lib/linux-app-manager/appimage-launcher.py" "$@"

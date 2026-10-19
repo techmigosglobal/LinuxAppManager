@@ -4,6 +4,11 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+for tool in rg python3; do
+  command -v "$tool" >/dev/null || { echo "required release audit tool missing: $tool" >&2; exit 1; }
+done
+python3 scripts/check-release-version.py
+
 failures=0
 for required in LICENSE debian/copyright Cargo.toml Cargo.lock README.md packaging/io.github.techmigosglobal.LinuxAppManager.desktop packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml packaging/io.github.techmigosglobal.LinuxAppManager.svg packaging/io.github.techmigosglobal.LinuxAppManager.png website/assets/screenshots/applications.png website/assets/screenshots/duplicates.png website/assets/screenshots/history.png; do
   if [[ ! -f "$required" ]]; then
@@ -38,7 +43,7 @@ if ! rg -q 'Vin-Linux-App-Manager@techmigos\.com|https://techmigos\.com' \
 fi
 
 if rg -n -i "(password|secret|api[_-]?key|token)[[:space:]]*[:=][[:space:]]*[\"']?[A-Za-z0-9_./+-]{12,}" \
-  --glob '!target/**' --glob '!Cargo.lock' .; then
+  --glob '!target/**' --glob '!dist/**' --glob '!vendor/**' --glob '!Cargo.lock' .; then
   echo "possible credential material found in release inputs" >&2
   failures=$((failures + 1))
 fi
