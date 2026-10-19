@@ -41,6 +41,23 @@ jobs:
           version=$(python3 scripts/check-release-version.py)
           ./scripts/pack-snap.sh "dist/runtime/VIN-LinuxManager-$version-x86_64.AppImage" \
             "dist/runtime/VIN-LinuxManager-$version-x86_64.AppImage.build.json" "$GITHUB_SHA" dist/snap
+      - name: Install and test through snapd
+        run: |
+          sudo snap install --dangerous --classic dist/snap/*.snap
+          snap run vin-linux-app-manager --cli list --all --json > dist/snap/installed-inventory.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          inventory = json.loads(Path('dist/snap/installed-inventory.json').read_text())
+          assert inventory['apps'], 'installed Snap did not inventory the host'
+          print(f"Installed Snap inventoried {len(inventory['apps'])} packages")
+          PY
+          if snap run vin-linux-app-manager --cli uninstall release-smoke --yes > dist/snap/installed-mutation.log 2>&1; then
+            echo 'Installed Snap unexpectedly permitted host changes' >&2
+            exit 1
+          fi
+          grep -q 'disabled in sandboxed builds' dist/snap/installed-mutation.log
+          xvfb-run -a dbus-run-session -- snap run vin-linux-app-manager --appimage-smoke-test
       - uses: actions/upload-artifact@v4
         with:
           name: vin-linux-app-manager-snap
