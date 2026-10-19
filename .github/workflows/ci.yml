@@ -19,7 +19,7 @@ jobs:
       - name: Install GTK test dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --yes ripgrep rpm apt-utils appstream desktop-file-utils python3-pil gpgv gnupg xvfb python3-gi gir1.2-gtk-4.0 gir1.2-adw-1
+          sudo apt-get install --yes ripgrep rpm apt-utils appstream desktop-file-utils patchelf python3-yaml python3-pil gpgv gnupg xvfb python3-gi gir1.2-gtk-4.0 gir1.2-adw-1
       - name: Test
         run: cargo test --locked --all-targets
       - name: Format

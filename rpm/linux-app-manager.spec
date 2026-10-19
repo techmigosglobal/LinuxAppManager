@@ -16,8 +16,10 @@ BuildRequires:  gtk4
 BuildRequires:  libadwaita
 Requires:       python3
 Requires:       python3-gobject
-Requires:       %{_libdir}/girepository-1.0/Gtk-4.0.typelib
-Requires:       %{_libdir}/girepository-1.0/Adw-1.typelib
+# The Python frontend loads GI dynamically, so ELF autodeps cannot infer these.
+# ToolbarView was introduced in libadwaita 1.4; older runtimes cannot launch it.
+Requires:       gtk4 >= 4.0
+Requires:       libadwaita >= 1.4
 Requires:       polkit
 
 %description

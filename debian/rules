@@ -3,6 +3,11 @@
 %:
 	dh $@
 
+# Vendored registry archives contain checksum-tracked Cargo.toml.orig files.
+# dh_clean's generic backup deletion must never mutate the offline sources.
+override_dh_clean:
+	dh_clean -Xvendor/
+
 override_dh_auto_build:
 	cargo build --release --locked --offline --bin lam
 

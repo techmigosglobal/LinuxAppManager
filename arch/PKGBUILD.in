@@ -7,6 +7,9 @@ url='https://github.com/techmigosglobal/LinuxAppManager'
 license=('GPL-3.0-or-later')
 depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit')
 makedepends=('rust>=1.90' 'gcc' 'pkgconf')
+# makepkg's GCC LTO bytecode cannot be linked by pinned Rust's LLVM lld when
+# cc builds bundled SQLite. Keep native C objects; retain other hardening flags.
+options=('!lto')
 source=("https://github.com/techmigosglobal/LinuxAppManager/releases/download/v${pkgver}/linux-app-manager-${pkgver}.tar.gz")
 sha256sums=('@SHA256@')
 
