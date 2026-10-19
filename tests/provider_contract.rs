@@ -42,7 +42,7 @@ impl FakeCommands {
             ),
             (
                 "pacman",
-                "#!/bin/sh\nprintf 'editor\\t1.0-1\\tx86_64\\t100\\tEditor\\tArch Linux\\n'\n",
+                "#!/bin/sh\n[ \"$1\" = '-Qi' ] || exit 2\nprintf 'Name            : editor\\nVersion         : 1.0-1\\nDescription     : Editor\\nArchitecture    : x86_64\\nInstalled Size  : 100 B\\nPackager        : Arch Linux\\n\\n'\n",
             ),
             (
                 "flatpak",
