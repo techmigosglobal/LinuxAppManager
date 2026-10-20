@@ -8,6 +8,12 @@ on:
         required: false
         default: ''
         type: string
+      public_channel:
+        description: 'Channel for public installation verification'
+        required: true
+        default: edge
+        type: choice
+        options: [edge, candidate, stable]
   pull_request:
     paths:
       - 'snap/**'
@@ -86,12 +92,14 @@ jobs:
       - name: Install public edge revision and test bundled runtime
         env:
           EXPECTED_REVISION: ${{ inputs.public_revision }}
+          PUBLIC_CHANNEL: ${{ inputs.public_channel }}
         run: |
           set -euo pipefail
           [[ "$EXPECTED_REVISION" =~ ^[1-9][0-9]*$ ]]
+          [[ "$PUBLIC_CHANNEL" =~ ^(edge|candidate|stable)$ ]]
           sudo apt-get update
           sudo apt-get install --yes xvfb dbus-x11
-          sudo snap install vin-linux-app-manager --edge --classic
+          sudo snap install vin-linux-app-manager --channel="$PUBLIC_CHANNEL" --classic
           mkdir public-snap-evidence
           snap list vin-linux-app-manager | tee public-snap-evidence/installed.txt
           installed_revision=$(snap list vin-linux-app-manager | awk 'NR==2 {print $3}')
