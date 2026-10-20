@@ -1,6 +1,6 @@
 # Publication status
 
-Updated: 2026-10-19
+Updated: 2026-10-21
 
 ## v0.1.1 implementation and verification
 
@@ -35,16 +35,15 @@ Local evidence on 2026-10-19:
 
 Hosted builder evidence:
 
-- [Native preflight](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39260817091)
-  built and audited all six targets. Detailed logs exposed failed native GUI
-  checks that were masked by `tee`: Fedora lacked the Cairo typelib dependency;
-  the other builders' smoke check raced the normal asynchronous startup scan.
-  Failure propagation, the RPM dependency and the smoke check were corrected.
-  Fresh-container GUI/removal acceptance requires the corrected rerun.
-- The same preflight genuinely passed signed APT installation and removal from
-  generated repository metadata for Ubuntu 24.04, Ubuntu 26.04 and Debian 13;
-  each suite's explicit success marker was inspected. Its signing key was an
-  ephemeral test key, not the production repository key.
+- [Corrected native preflight](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39263702994)
+  passed all six builds and package audits, plus fresh-container installation,
+  real asynchronous GUI startup/inventory, sandbox refusal checks and uninstall.
+  Per-target success markers were inspected, rather than relying only on job
+  conclusions. Fedora's Cairo typelib/GLES dependencies and pipeline failure
+  propagation are fixed.
+- The same run passed signed APT installation and removal for Ubuntu 24.04,
+  Ubuntu 26.04 and Debian 13. Its signing key was an ephemeral test key, not
+  the production repository key. Public repository deployment is still pending.
 - [Snap installed-runtime validation](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39261014478)
   passed packed-file checks and an actual `snap install --dangerous --classic`
   on Ubuntu 24.04. `snap run` inventoried 1,250 packages, opened the bundled GUI,
@@ -62,7 +61,11 @@ Current account/store boundaries:
   were saved and verified after reload.
 - Revision **3**, a new `0.1.1` amd64 candidate, was uploaded once with `--release=edge` on
   2026-10-19. The store returned `(NEEDS REVIEW) confinement 'classic' not allowed`.
-  This is a store review hold; no edge, candidate or stable publication is claimed.
+  No edge, candidate or stable publication is claimed. On 2026-10-21 a release
+  attempt returned `resource-not-ready: Snap cannot be published due to
+  inconsistent state`. Maintainer-reported forum approval has not yet been
+  verified as approval of this snap's classic confinement; the forum browser
+  session was logged out and a sign-in link was requested.
 - Candidate SHA-256: `b0189975685706da57f4b94806573271504c8bfdb98da430cb1824145e518eb9`.
   Its embedded source commit is `b2c643521f4bbf12df571823d8152caefc2f88d8`
   (the PR merge commit built by the linked Snap validation run).
@@ -70,6 +73,9 @@ Current account/store boundaries:
   Canonical lists management snaps as unsupported for classic confinement.
   A strict edition is not validated: existing host queries would need explicit
   metadata access and provider-specific changes to report actual host inventory.
+  Before stable publication, rebuild from the immutable release tag with
+  `grade: stable`, repeat installed-Snap checks, and verify reviewer approval.
+  The current `grade: devel` revision is only an edge test candidate.
 - No configured Copr credentials or verified Copr project were found. AUR
   publication also requires a maintainer account and authenticated repository.
 - Flathub policy review is required before submission. Its current requirements
