@@ -73,9 +73,10 @@ Current account/store boundaries:
   Canonical lists management snaps as unsupported for classic confinement.
   A strict edition is not validated: existing host queries would need explicit
   metadata access and provider-specific changes to report actual host inventory.
-  Before stable publication, rebuild from the immutable release tag with
-  `grade: stable`, repeat installed-Snap checks, and verify reviewer approval.
-  The current `grade: devel` revision is only an edge test candidate.
+  Revision 3 used `grade: devel` and cannot enter candidate/stable. The next
+  manifest uses `grade: stable` after installed-runtime validation. Build it
+  from the immutable release tag, repeat installed-Snap checks, verify reviewer
+  approval and test a public edge installation before promotion.
 - No configured Copr credentials or verified Copr project were found. AUR
   publication also requires a maintainer account and authenticated repository.
 - Flathub policy review is required before submission. Its current requirements
@@ -132,8 +133,9 @@ application inventories and manages host package-manager sources and needs
 host provider access. Do not claim approval in advance; the store may require
 a strict-confinement redesign instead.
 
-The current manifest intentionally remains `grade: devel` and
-`confinement: classic` until review and end-to-end testing are complete.
+Historical revision 3 used `grade: devel`. The next packaging manifest uses
+`grade: stable`; confinement remains `classic` and still requires store approval.
+A stable grade does not itself approve or publish the snap.
 See the [official classic-confinement review guidance](https://snapcraft.io/docs/reviewing-classic-confinement-snaps/).
 
 ## Flathub

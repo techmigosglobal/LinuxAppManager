@@ -23,8 +23,8 @@ def prepare(appdir, report, commit):
     manifest = yaml.safe_load((ROOT / "snap/snapcraft.yaml").read_text())
     if actual.get("version") != manifest["version"]:
         raise ValueError("portable runtime and Snap versions differ")
-    if manifest["confinement"] != "classic" or manifest["grade"] != "devel":
-        raise ValueError("Snap remains classic/devel until review and installed-Snap acceptance")
+    if manifest["confinement"] != "classic" or manifest["grade"] not in ("devel", "stable"):
+        raise ValueError("Snap must retain classic confinement and a valid release grade")
     if not (appdir / "AppRun").is_file() or not (appdir / "usr/bin/lam").is_file():
         raise ValueError("portable runtime lacks application entry points")
     # Classic snaps must load their declared base's glibc, even on older hosts.
@@ -63,7 +63,7 @@ def prepare(appdir, report, commit):
     shutil.copyfile(appdir / "io.github.techmigosglobal.LinuxAppManager.png", meta / "gui/icon.png")
     (appdir / "usr/share/linux-app-manager/Snap.build.json").write_text(json.dumps({
         "version": manifest["version"], "source_commit": commit,
-        "confinement": "classic", "grade": "devel", "host_mutations": False,
+        "confinement": "classic", "grade": manifest["grade"], "host_mutations": False,
         "base": "core24", "base_linked_elf_files": patched,
         "patchelf": subprocess.check_output(["patchelf", "--version"], text=True).strip() if patched else None,
         "runtime": actual,

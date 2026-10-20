@@ -38,13 +38,14 @@ class SnapPackagingTests(unittest.TestCase):
             metadata = yaml.safe_load((root / "meta/snap.yaml").read_text())
             self.assertEqual((name, version), ("vin-linux-app-manager", "0.1.1"))
             self.assertEqual(metadata["apps"][name]["command"], "AppRun")
-            self.assertEqual(metadata["grade"], "devel")
+            self.assertEqual(metadata["grade"], "stable")
             self.assertEqual(metadata["confinement"], "classic")
             self.assertNotIn("/usr/lib/linux-app-manager", (root / "meta/snap.yaml").read_text())
             desktop = (root / "meta/gui/io.github.techmigosglobal.LinuxAppManager.desktop").read_text()
             self.assertIn("Exec=vin-linux-app-manager", desktop)
             proof = json.loads((root / "usr/share/linux-app-manager/Snap.build.json").read_text())
             self.assertFalse(proof["host_mutations"])
+            self.assertEqual(proof["grade"], "stable")
             self.assertEqual(proof["source_commit"], "a" * 40)
 
     def test_rejects_development_runtime_and_version_mismatch(self):

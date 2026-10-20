@@ -9,7 +9,7 @@ description: |
   host removal and cleanup operations are disabled. Use native packages for
   reviewed host package changes. Classic confinement requires store approval.
 icon: packaging/io.github.techmigosglobal.LinuxAppManager.png
-grade: devel
+grade: stable
 confinement: classic
 platforms:
   amd64:

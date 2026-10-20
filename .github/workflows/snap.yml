@@ -2,6 +2,12 @@ name: Snap build and validation
 
 on:
   workflow_dispatch:
+    inputs:
+      public_revision:
+        description: 'Verify this public edge revision instead of building (empty means build)'
+        required: false
+        default: ''
+        type: string
   pull_request:
     paths:
       - 'snap/**'
@@ -15,6 +21,7 @@ permissions:
 
 jobs:
   snap:
+    if: github.event_name != 'workflow_dispatch' || inputs.public_revision == ''
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +39,12 @@ jobs:
       - name: Build exact-commit portable runtime
         run: |
           version=$(python3 scripts/check-release-version.py)
-          ./scripts/build-source.sh --local dist/source
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
+            python3 scripts/check-release-version.py --tag "$GITHUB_REF_NAME"
+            ./scripts/build-source.sh "$GITHUB_REF_NAME" dist/source
+          else
+            ./scripts/build-source.sh --local dist/source
+          fi
           mkdir runtime-source
           tar -xzf "dist/source/linux-app-manager-$version.tar.gz" -C runtime-source
           ./scripts/build-appimage.sh "runtime-source/linux-app-manager-$version" dist/runtime
@@ -63,3 +75,48 @@ jobs:
           name: vin-linux-app-manager-snap
           path: dist/snap/*
           if-no-files-found: error
+
+  verify_public:
+    if: github.event_name == 'workflow_dispatch' && inputs.public_revision != ''
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install public edge revision and test bundled runtime
+        env:
+          EXPECTED_REVISION: ${{ inputs.public_revision }}
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_REVISION" =~ ^[1-9][0-9]*$ ]]
+          sudo apt-get update
+          sudo apt-get install --yes xvfb dbus-x11
+          sudo snap install vin-linux-app-manager --edge --classic
+          mkdir public-snap-evidence
+          snap list vin-linux-app-manager | tee public-snap-evidence/installed.txt
+          installed_revision=$(snap list vin-linux-app-manager | awk 'NR==2 {print $3}')
+          installed_version=$(snap list vin-linux-app-manager | awk 'NR==2 {print $2}')
+          [[ "$installed_revision" == "$EXPECTED_REVISION" ]]
+          [[ "$installed_version" == "$(python3 scripts/check-release-version.py)" ]]
+          sha256sum "/var/lib/snapd/snaps/vin-linux-app-manager_${EXPECTED_REVISION}.snap" > public-snap-evidence/SHA256SUMS
+          snap run vin-linux-app-manager --cli list --all --json > public-snap-evidence/inventory.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          inventory = json.loads(Path('public-snap-evidence/inventory.json').read_text())
+          assert inventory['apps'], 'public Snap did not inventory the host'
+          print(f"Public Snap inventoried {len(inventory['apps'])} packages")
+          PY
+          if snap run vin-linux-app-manager --cli uninstall release-smoke --yes > public-snap-evidence/mutation.log 2>&1; then
+            echo 'Public Snap unexpectedly permitted host changes' >&2
+            exit 1
+          fi
+          grep -q 'disabled in sandboxed builds' public-snap-evidence/mutation.log
+          xvfb-run -a dbus-run-session -- snap run vin-linux-app-manager --appimage-smoke-test | tee public-snap-evidence/gui.txt
+          sudo snap remove vin-linux-app-manager
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-snap-installation
+          path: public-snap-evidence/
+          if-no-files-found: ignore
