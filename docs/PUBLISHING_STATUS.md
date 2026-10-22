@@ -1,6 +1,6 @@
 # Publication status
 
-Updated: 2026-10-21
+Updated: 2026-10-22
 
 ## v0.1.1 implementation and verification
 
@@ -35,6 +35,23 @@ Local evidence on 2026-10-19:
 
 Hosted builder evidence:
 
+- [PR #1](https://github.com/techmigosglobal/LinuxAppManager/pull/1) is merged.
+  Immutable tag `v0.1.1` resolves to
+  `ccbd9a82e41f7fb314a69d3853ec2cb3c7190d63`; `v0.1.0` is preserved.
+  The [official release run](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39800422189)
+  passed source validation, all six native builds, runtime installation checks,
+  AppImage extraction/launch, signed APT integration on all three suites and
+  production signing. It created a 98-asset signed draft. The
+  [tagged Snap run](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39800428550)
+  passed the stable-grade Snap build and installed-snapd checks from that same
+  immutable source: 1,252 host packages inventoried, bundled GUI launched and
+  host removal refused. These remain automated checks, not desktop VM acceptance.
+- Download verification found GitHub changed `~` to `.` in Debian asset names
+  after signing. The draft requires filename metadata repair before promotion.
+  The repair verifies every original signature and package checksum, preserves
+  the immutable tag and binary bytes, and re-signs only the corrected manifest
+  and checksum list. Future uploads normalize names before signing and check
+  the hosted filename/size/digest inventory.
 - [Corrected native preflight](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39263702994)
   passed all six builds and package audits, plus fresh-container installation,
   real asynchronous GUI startup/inventory, sandbox refusal checks and uninstall.
@@ -59,13 +76,21 @@ Current account/store boundaries:
   for publisher `techmigos`. The listing title, Utilities category, read-only
   description, website, GPL-3.0-or-later license, icon and three screenshots
   were saved and verified after reload.
-- Revision **3**, a new `0.1.1` amd64 candidate, was uploaded once with `--release=edge` on
+- Revision **4**, `0.1.1` amd64/core24, `classic/stable`, was uploaded once with
+  `--release=edge` on 2026-10-22. The store still returned `(NEEDS REVIEW)
+  confinement 'classic' not allowed`; an authenticated status check reported
+  no released revisions. Its source is the immutable `v0.1.1` commit above.
+  SHA-256: `009714f56d30c40f6633289862d96a0d45e95c22ae5ea15e4727471a1e9ab864`.
+  Candidate 4 and its report are retained in ignored `dist/snap-builds/0.1.1-tag/`.
+- Historical revision **3**, a `0.1.1` amd64 candidate, was uploaded once with `--release=edge` on
   2026-10-19. The store returned `(NEEDS REVIEW) confinement 'classic' not allowed`.
   No edge, candidate or stable publication is claimed. On 2026-10-21 a release
   attempt returned `resource-not-ready: Snap cannot be published due to
   inconsistent state`. Maintainer-reported forum approval has not yet been
-  verified as approval of this snap's classic confinement; the forum browser
-  session was logged out and a sign-in link was requested.
+  verified as approval of this snap's classic confinement. On 2026-10-22 the
+  authenticated CLI still reported no released revisions. The forum browser
+  session remained logged out; posting the authorized eligibility request needs
+  a successful forum sign-in.
 - Candidate SHA-256: `b0189975685706da57f4b94806573271504c8bfdb98da430cb1824145e518eb9`.
   Its embedded source commit is `b2c643521f4bbf12df571823d8152caefc2f88d8`
   (the PR merge commit built by the linked Snap validation run).
@@ -73,10 +98,10 @@ Current account/store boundaries:
   Canonical lists management snaps as unsupported for classic confinement.
   A strict edition is not validated: existing host queries would need explicit
   metadata access and provider-specific changes to report actual host inventory.
-  Revision 3 used `grade: devel` and cannot enter candidate/stable. The next
-  manifest uses `grade: stable` after installed-runtime validation. Build it
-  from the immutable release tag, repeat installed-Snap checks, verify reviewer
-  approval and test a public edge installation before promotion.
+  Revision 3 used `grade: devel` and cannot enter candidate/stable. Revision 4
+  uses `grade: stable` and passed installed-runtime validation. Reviewer approval
+  and public edge installation remain required before promotion. Do not retry
+  this unchanged package to work around the review hold.
 - No configured Copr credentials or verified Copr project were found. AUR
   publication also requires a maintainer account and authenticated repository.
 - Flathub policy review is required before submission. Its current requirements
@@ -152,9 +177,10 @@ See the [official classic-confinement review guidance](https://snapcraft.io/docs
 
 ## Current source and artifact state
 
-The implementation is pushed on `codex/linux-publishing-0.1.1` in
-[draft PR #1](https://github.com/techmigosglobal/LinuxAppManager/pull/1).
-It has not been merged, and `v0.1.1` has not been tagged or published.
-The uploaded Snap and its builder report are retained locally in the ignored
-`dist/snap-builds/0.1.1/` directory and as artifacts of the linked Snap run.
-Credentials and private signing keys are not included.
+The implementation was merged through
+[PR #1](https://github.com/techmigosglobal/LinuxAppManager/pull/1) and tagged
+[`v0.1.1`](https://github.com/techmigosglobal/LinuxAppManager/tree/v0.1.1).
+Creating the tag starts draft artifact production; it does not establish public
+installation acceptance. The existing revision 3 Snap and builder report are
+retained in the ignored `dist/snap-builds/0.1.1/` directory and the linked Snap
+run. Credentials and private signing keys are not included.

@@ -322,6 +322,7 @@ jobs:
               if json.loads(report.read_text()).get('development_builder') is not False:
                   raise SystemExit('AppImage built with development override cannot be published')
           PY
+          python3 scripts/github-release-assets.py prepare release
       - name: Sign and verify complete download directory
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -365,3 +366,7 @@ jobs:
           fi
           gh release create "$RELEASE_TAG" release/* --verify-tag \
             --repo "$GITHUB_REPOSITORY" --title "VIN-LinuxManager $RELEASE_TAG" --generate-notes --draft
+          release_api_url="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json apiUrl --jq .apiUrl)"
+          gh api "$release_api_url" > "$RUNNER_TEMP/hosted-release.json"
+          python3 scripts/github-release-assets.py check-hosted release \
+            --release-json "$RUNNER_TEMP/hosted-release.json"

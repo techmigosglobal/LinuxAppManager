@@ -43,14 +43,22 @@ distribution: launch, provider inventory, authorization cancellation, reviewed
 disposable-package removal, operation history, upgrade, application uninstall,
 and AppImage on Ubuntu/Fedora/Arch. Preserve the previous signed release.
 
-Once preflight and installation acceptance pass, merge the reviewed source,
-create/push the immutable `v0.1.1` tag, and let its workflow produce the signed
-draft, including AppImage for tag-triggered builds. An explicit tagged retry
+Once source validation and automated package checks pass, merge the reviewed
+source, create/push the immutable `v0.1.1` tag, and let its workflow produce the
+signed draft for desktop installation acceptance, including AppImage for
+tag-triggered builds. An explicit tagged retry
 uses `preflight=false,build_appimage=true`; do not race two builds of the same
 tag. Never change a tag or append unverified artifacts to an existing release.
 
 Download the draft artifacts, verify every signature and `sha256sum --check
 SHA256SUMS` from the download directory, and complete the acceptance record.
+GitHub changes `~` in uploaded filenames to `.`. Normalize download filenames
+before signing; Debian package versions retain their original `~suite` suffix.
+The workflow compares hosted asset names, sizes and available SHA-256 digests
+with the signed directory after upload. An existing unpublished draft affected
+by this rename can use `repair-draft-metadata.yml`: it verifies all original
+signed bytes and source identity before re-signing only the download manifest
+and checksum list. It preserves the tag, package bytes and package signatures.
 Promote with `gh release edit v0.1.1 --draft=false --latest` only when those gates
 pass. The dependency inventory is labeled as such, not claimed as an SPDX SBOM.
 

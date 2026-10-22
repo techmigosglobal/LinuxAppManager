@@ -1,6 +1,6 @@
 # Snap eligibility review draft
 
-Prepared 2026-10-19. This is a maintainer review draft, not a posted request or
+Updated 2026-10-22. This is a maintainer review draft, not a posted request or
 an assertion that classic confinement is approved.
 
 ## Proposed forum topic
@@ -11,7 +11,7 @@ Eligibility guidance for vin-linux-app-manager: read-only host package inventory
 
 - name: `vin-linux-app-manager`
 - description: Read-only GTK4/libadwaita inventory of host applications and packages.
-- snapcraft: https://github.com/techmigosglobal/LinuxAppManager/blob/6a776499e95e7dd70f11cb88d8e7e4c121843406/snap/snapcraft.yaml
+- snapcraft: https://github.com/techmigosglobal/LinuxAppManager/blob/v0.1.1/snap/snapcraft.yaml
 - upstream: https://github.com/techmigosglobal/LinuxAppManager
 - upstream-relation: `techmigos`, the upstream publisher.
 - supported-category: No supported classic category identified; requesting eligibility guidance for this read-only inventory utility.
@@ -30,9 +30,13 @@ Native packages support reviewed package removal; the Snap edition explicitly
 disables host removal and cleanup in both the CLI and GUI. There is no privileged
 host helper in this release.
 
-The uploaded candidate is revision **3**, version **0.1.1**, amd64, core24,
-classic/devel. The upload returned `(NEEDS REVIEW) confinement 'classic' not
-allowed`, so no channel is released. It bundles Python, GTK,
+The uploaded candidate is revision **4**, version **0.1.1**, amd64, core24,
+classic/stable. The upload returned `(NEEDS REVIEW) confinement 'classic' not
+allowed`, and the authenticated CLI still reported no released revisions on
+2026-10-22. This candidate was built and tested from immutable tag `v0.1.1` at
+`ccbd9a82e41f7fb314a69d3853ec2cb3c7190d63`. Its SHA-256 is
+`009714f56d30c40f6633289862d96a0d45e95c22ae5ea15e4727471a1e9ab864`.
+It bundles Python, GTK,
 libadwaita and the Rust executable. It queries host package-manager programs and
 metadata to report the host inventory, including distro packages, Snap, Flatpak,
 AppImage and other supported providers. The host commands run with host library
