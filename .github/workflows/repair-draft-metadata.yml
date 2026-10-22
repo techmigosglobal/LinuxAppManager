@@ -1,0 +1,92 @@
+name: Repair draft download filenames
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing draft tag; package bytes and tag are preserved'
+        required: true
+        default: v0.1.1
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Download existing draft and require immutable source identity
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          git rev-parse "refs/tags/$RELEASE_TAG^{commit}" > "$RUNNER_TEMP/release-commit"
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > "$RUNNER_TEMP/before.json"
+          python3 - "$RUNNER_TEMP/before.json" <<'PY'
+          import json, pathlib, sys
+          release = json.loads(pathlib.Path(sys.argv[1]).read_text())
+          assert release['draft'], 'only an unpublished draft may be repaired'
+          PY
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir release
+          mkdir original-metadata
+          cp release/MANIFEST.json* release/SHA256SUMS* original-metadata/
+          gpg --batch --dearmor --output "$RUNNER_TEMP/trusted.gpg" packaging/vin-linuxmanager-release-public-key.asc
+          python3 scripts/github-release-assets.py repair release \
+            --keyring "$RUNNER_TEMP/trusted.gpg" --tag "$RELEASE_TAG" \
+            --commit "$(cat "$RUNNER_TEMP/release-commit")"
+      - name: Sign corrected metadata and verify every unchanged package
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+        run: |
+          set -euo pipefail
+          export GNUPGHOME
+          GNUPGHOME="$(mktemp -d "$RUNNER_TEMP/repair-gnupg.XXXXXX")"
+          passphrase_file="$(mktemp "$RUNNER_TEMP/repair-passphrase.XXXXXX")"
+          cleanup() {
+            gpgconf --homedir "$GNUPGHOME" --kill all >/dev/null 2>&1 || true
+            rm -rf -- "$GNUPGHOME"
+            rm -f -- "$passphrase_file"
+          }
+          trap cleanup EXIT
+          chmod 700 "$GNUPGHOME"
+          chmod 600 "$passphrase_file"
+          printf '%s' "$GPG_PRIVATE_KEY" | gpg --batch --import
+          printf '%s' "$GPG_PASSPHRASE" > "$passphrase_file"
+          for name in MANIFEST.json SHA256SUMS; do
+            gpg --batch --yes --local-user "$GPG_KEY_ID" --armor --detach-sign \
+              --pinentry-mode loopback --passphrase-file "$passphrase_file" \
+              --output "release/$name.asc" "release/$name"
+          done
+          ./scripts/verify-release-signatures.sh packaging/vin-linuxmanager-release-public-key.asc release
+      - name: Replace only verified draft metadata and check hosted asset names
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > "$RUNNER_TEMP/current.json"
+          python3 - "$RUNNER_TEMP/before.json" "$RUNNER_TEMP/current.json" <<'PY'
+          import json, pathlib, sys
+          before, current = [json.loads(pathlib.Path(p).read_text()) for p in sys.argv[1:]]
+          assert current['draft'] and current['id'] == before['id']
+          assert [(a['id'], a['updated_at']) for a in current['assets']] == [(a['id'], a['updated_at']) for a in before['assets']], 'draft changed during verification'
+          PY
+          gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+            release/MANIFEST.json release/MANIFEST.json.asc release/SHA256SUMS release/SHA256SUMS.asc
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > "$RUNNER_TEMP/hosted-release.json"
+          python3 scripts/github-release-assets.py check-hosted release --release-json "$RUNNER_TEMP/hosted-release.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-draft-metadata
+          path: original-metadata/
