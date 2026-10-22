@@ -366,6 +366,7 @@ jobs:
           fi
           gh release create "$RELEASE_TAG" release/* --verify-tag \
             --repo "$GITHUB_REPOSITORY" --title "VIN-LinuxManager $RELEASE_TAG" --generate-notes --draft
-          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > "$RUNNER_TEMP/hosted-release.json"
+          release_api_url="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json apiUrl --jq .apiUrl)"
+          gh api "$release_api_url" > "$RUNNER_TEMP/hosted-release.json"
           python3 scripts/github-release-assets.py check-hosted release \
             --release-json "$RUNNER_TEMP/hosted-release.json"
