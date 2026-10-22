@@ -1,12 +1,15 @@
 name: vin-linux-app-manager
 base: core24
-version: '0.1.0'
-summary: VIN-LinuxManager safe cross-source Linux software manager
+version: '0.1.1'
+summary: Inspect installed Linux applications and package sources
 description: |
-  VIN-LinuxManager inventories desktop applications and packages from common Linux software
-  sources. Review the provider transaction before making a change.
-icon: usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
-grade: devel
+  VIN-LinuxManager inventories desktop applications and installed packages from
+  supported Linux software sources, displays provider health and duplicate
+  installations, and records local history. This Snap edition is read-only:
+  host removal and cleanup operations are disabled. Use native packages for
+  reviewed host package changes. Classic confinement requires store approval.
+icon: packaging/io.github.techmigosglobal.LinuxAppManager.png
+grade: stable
 confinement: classic
 platforms:
   amd64:
@@ -14,31 +17,14 @@ platforms:
     build-for: [amd64]
 
 parts:
-  linux-app-manager:
-    plugin: rust
-    source: .
-    rust-channel: stable
-    build-packages:
-      - python3-gi
-      - gir1.2-gtk-4.0
-      - gir1.2-adw-1
-    stage-packages:
-      - python3
-      - python3-gi
-      - gir1.2-gtk-4.0
-      - gir1.2-adw-1
-      - libadwaita-1-0
-    override-build: |
-      craftctl default
-      install -Dm755 target/release/lam "$CRAFT_PART_INSTALL/usr/lib/linux-app-manager/lam"
-      install -Dm755 gui/app.py "$CRAFT_PART_INSTALL/usr/lib/linux-app-manager/app.py"
-      install -Dm755 packaging/linux-app-manager "$CRAFT_PART_INSTALL/usr/bin/linux-app-manager"
-      install -Dm644 packaging/io.github.techmigosglobal.LinuxAppManager.desktop "$CRAFT_PART_INSTALL/usr/share/applications/io.github.techmigosglobal.LinuxAppManager.desktop"
-      install -Dm644 packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml "$CRAFT_PART_INSTALL/usr/share/metainfo/io.github.techmigosglobal.LinuxAppManager.metainfo.xml"
-      install -Dm644 packaging/io.github.techmigosglobal.LinuxAppManager.svg "$CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/io.github.techmigosglobal.LinuxAppManager.svg"
-      install -Dm644 packaging/io.github.techmigosglobal.LinuxAppManager.png "$CRAFT_PART_INSTALL/usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png"
+  # Produced from the tested Ubuntu 24.04 portable runtime by pack-snap.sh.
+  # Do not build from a native launcher containing host-absolute /usr paths.
+  application:
+    plugin: dump
+    source: dist/snap-appdir
+    build-attributes: [enable-patchelf]
 
 apps:
-  linux-app-manager:
-    command: usr/bin/linux-app-manager
-    desktop: usr/share/applications/io.github.techmigosglobal.LinuxAppManager.desktop
+  vin-linux-app-manager:
+    command: AppRun
+    desktop: io.github.techmigosglobal.LinuxAppManager.desktop

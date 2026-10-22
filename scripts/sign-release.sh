@@ -1,50 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-if [[ $# -ne 2 ]]; then
-  echo "usage: $0 KEY_ID RELEASE_DIRECTORY" >&2
-  exit 2
-fi
-
+[[ $# -eq 2 ]] || { echo "usage: $0 KEY_ID RELEASE_DIRECTORY" >&2; exit 2; }
 key_id="$1"
 release_dir="$2"
-
-if ! command -v gpg >/dev/null 2>&1; then
-  echo "gpg is required to sign release artifacts" >&2
-  exit 1
-fi
-if [[ ! -d "$release_dir" ]]; then
-  echo "release directory does not exist: $release_dir" >&2
-  exit 1
-fi
-if [[ -z "$key_id" ]]; then
-  echo "a signing key ID or fingerprint is required" >&2
-  exit 1
-fi
-
-sign_options=(--yes --local-user "$key_id" --armor --detach-sign)
+command -v gpg >/dev/null || { echo "gpg is required" >&2; exit 1; }
+[[ -d "$release_dir" && -n "$key_id" ]] || { echo "release directory and signing key are required" >&2; exit 1; }
+[[ -f "$release_dir/SHA256SUMS" && -f "$release_dir/MANIFEST.json" ]] || { echo "generate the manifest before signing" >&2; exit 1; }
+(cd "$release_dir" && sha256sum --check --strict SHA256SUMS)
+sign_options=(--batch --yes --local-user "$key_id" --armor --detach-sign)
 if [[ -n "${GPG_PASSPHRASE_FILE:-}" ]]; then
-  if [[ ! -f "$GPG_PASSPHRASE_FILE" ]]; then
-    echo "GPG_PASSPHRASE_FILE does not exist: $GPG_PASSPHRASE_FILE" >&2
-    exit 1
-  fi
-  sign_options+=(--batch --pinentry-mode loopback --passphrase-file "$GPG_PASSPHRASE_FILE")
+  [[ -f "$GPG_PASSPHRASE_FILE" ]] || { echo "passphrase file is missing" >&2; exit 1; }
+  sign_options+=(--pinentry-mode loopback --passphrase-file "$GPG_PASSPHRASE_FILE")
 fi
-
-mapfile -t release_files < <(
-  find "$release_dir" -maxdepth 1 -type f \
-    ! -name '*.asc' \
-    ! -name '*.sig' \
-    -print | sort
-)
-if [[ ${#release_files[@]} -eq 0 ]]; then
-  echo "no release files found in: $release_dir" >&2
-  exit 1
-fi
-
-for artifact in "${release_files[@]}"; do
+while IFS= read -r -d '' artifact; do
   signature="${artifact}.asc"
   gpg "${sign_options[@]}" --output "$signature" "$artifact"
-  gpg --verify "$signature" "$artifact" >/dev/null
+  gpg --batch --verify "$signature" "$artifact" >/dev/null
   echo "signed: $(basename "$artifact")"
-done
+done < <(find "$release_dir" -type f \( ! -name '*.asc' -a ! -name '*.sig' -o -name 'vin-linuxmanager-release-public-key.asc' \) -print0 | sort -z)

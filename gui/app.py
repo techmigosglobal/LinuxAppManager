@@ -17,6 +17,24 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gio, GLib, Gtk
 
 
+def host_cli_environment():
+    """Run the Rust CLI with host libraries while keeping session/Polkit access."""
+    environment = os.environ.copy()
+    if environment.get("LAM_APPIMAGE"):
+        for key in (
+            "LD_LIBRARY_PATH", "LD_PRELOAD", "PYTHONHOME", "PYTHONPATH", "PYTHONNOUSERSITE",
+            "GI_TYPELIB_PATH", "GIO_MODULE_DIR", "GIO_EXTRA_MODULES", "GSETTINGS_SCHEMA_DIR",
+            "GDK_PIXBUF_MODULE_FILE", "GDK_PIXBUF_MODULEDIR", "GTK_PATH", "GTK_DATA_PREFIX",
+            "GTK_EXE_PREFIX", "GTK_IM_MODULE_FILE", "XDG_DATA_DIRS", "APPDIR", "APPIMAGE",
+            "ARGV0", "OWD", "LAM_APPIMAGE_DIRECTORY", "GSK_RENDERER",
+        ):
+            environment.pop(key, None)
+        if "LAM_APPIMAGE_HOST_PATH" in environment:
+            environment["PATH"] = environment["LAM_APPIMAGE_HOST_PATH"]
+        # Keep the marker for the CLI's own host subprocess isolation.
+    return environment
+
+
 CSS = b"""
 window { background: @view_bg_color; }
 .sidebar { background: alpha(@window_bg_color, .72); padding: 18px 12px; }
@@ -217,7 +235,8 @@ class ManagerWindow(Adw.ApplicationWindow):
 
     def run_cli_json(self, *args):
         result = subprocess.run(
-            [self.lam_binary, *args], capture_output=True, text=True, timeout=300, check=False
+            [self.lam_binary, *args], capture_output=True, text=True, timeout=300, check=False,
+            env=host_cli_environment()
         )
         if result.returncode != 0:
             raise RuntimeError(result.stderr.strip() or f"lam exited with status {result.returncode}")
@@ -629,7 +648,7 @@ class ManagerWindow(Adw.ApplicationWindow):
             try:
                 process = subprocess.Popen(
                     args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                    text=True, bufsize=1,
+                    text=True, bufsize=1, env=host_cli_environment(),
                 )
                 self.operation_process = process
                 for line in process.stdout:

@@ -1,80 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT"
-
-if ! command -v docker >/dev/null 2>&1; then
-  echo "clean Debian verification requires Docker" >&2
-  exit 1
-fi
-
-# Pin the builder image so a release check does not silently change when the
-# mutable Ubuntu tag moves. Override this only when deliberately refreshing the
-# builder and record the resulting digest in the release evidence.
-BUILDER_IMAGE="${LAM_DEBIAN_BUILDER_IMAGE:-ubuntu@sha256:da6fc2be547864451aa253836dd926da33623312df4a9a243e35dc877c378a78}"
-if [[ -n "${LAM_DEBIAN_ARTIFACT_DIR:-}" ]]; then
-  ARTIFACT_DIR="$LAM_DEBIAN_ARTIFACT_DIR"
-else
-  ARTIFACT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/linux-app-manager-deb.XXXXXX")"
-fi
-mkdir -p "$ARTIFACT_DIR"
-
-echo "building Debian artifact in ${BUILDER_IMAGE}"
-docker run --rm \
-  --mount "type=bind,src=${ROOT},dst=/src,readonly" \
-  --mount "type=bind,src=${ARTIFACT_DIR},dst=/out" \
-  "$BUILDER_IMAGE" bash -euo pipefail -c '
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get update
-    apt-get install -y --no-install-recommends \
-      build-essential \
-      ca-certificates \
-      cargo \
-      debhelper-compat \
-      dpkg-dev \
-      gir1.2-adw-1 \
-      gir1.2-gtk-4.0 \
-      python3 \
-      python3-gi \
-      rustc
-
-    printf "builder: "
-    rustc --version
-    printf "builder: "
-    cargo --version
-
-    rm -rf /tmp/linux-app-manager
-    mkdir -p /tmp/linux-app-manager
-    tar -C /src \
-      --exclude=target \
-      --exclude=dist \
-      --exclude=.git \
-      --exclude=__pycache__ \
-      -cf - . | tar -C /tmp/linux-app-manager -xf -
-
-    cd /tmp/linux-app-manager
-    dpkg-buildpackage -us -uc -b
-
-    shopt -s nullglob
-    packages=(/tmp/linux-app-manager_*.deb)
-    if (( ${#packages[@]} == 0 )); then
-      echo "dpkg-buildpackage produced no Debian package" >&2
-      exit 1
-    fi
-    cp "${packages[@]}" /out/
-  '
-
-shopt -s nullglob
-packages=("$ARTIFACT_DIR"/linux-app-manager_*.deb)
-if (( ${#packages[@]} == 0 )); then
-  echo "no Debian package was written to ${ARTIFACT_DIR}" >&2
-  exit 1
-fi
-
-for package in "${packages[@]}"; do
-  echo "checking $(basename "$package")"
-  dpkg-deb --info "$package" >/dev/null
+if [[ $# == 2 && "$1" == --artifact ]]; then
+  package="$(realpath "$2")"
+  [[ "$(dpkg-deb --field "$package" Package)" == linux-app-manager ]] || { echo 'unexpected package name' >&2; exit 1; }
+  [[ "$(dpkg-deb --field "$package" Architecture)" == amd64 ]] || { echo 'unexpected package architecture' >&2; exit 1; }
   contents="$(dpkg-deb --contents "$package")"
   for required in \
     './usr/bin/linux-app-manager' \
@@ -83,18 +12,30 @@ for package in "${packages[@]}"; do
     './usr/share/applications/io.github.techmigosglobal.LinuxAppManager.desktop' \
     './usr/share/metainfo/io.github.techmigosglobal.LinuxAppManager.metainfo.xml' \
     './usr/share/icons/hicolor/scalable/apps/io.github.techmigosglobal.LinuxAppManager.svg' \
-    './usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png'; do
-    if ! grep -Fq "$required" <<<"$contents"; then
-      echo "package is missing ${required}: ${package}" >&2
-      exit 1
-    fi
+    './usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png' \
+    './usr/share/doc/linux-app-manager/copyright' \
+    './usr/share/doc/linux-app-manager/LICENSE' \
+    './usr/share/doc/linux-app-manager/THIRD_PARTY_LICENSES/inventory.json'; do
+    grep -Fq "$required" <<<"$contents" || { echo "package missing $required" >&2; exit 1; }
   done
   if grep -Eq '(^|/)(target|\.git|__pycache__)(/|$)|(^|/)(\.env|.*\.pem|.*\.key)$' <<<"$contents"; then
-    echo "package contains a build/cache/secret path: ${package}" >&2
+    echo "package contains a build/cache/secret path: $package" >&2
     exit 1
   fi
+  dependencies="$(dpkg-deb --field "$package" Depends)"
+  for required in python3 python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 pkexec; do
+    grep -Fq "$required" <<<"$dependencies" || { echo "package dependency missing: $required" >&2; exit 1; }
+  done
   dpkg-deb --field "$package" Package Version Architecture
-done
-
-echo "clean Debian package verification: valid"
-echo "artifacts: ${ARTIFACT_DIR}"
+  echo 'Debian artifact content verification: passed (installation not tested)'
+  exit 0
+fi
+if [[ $# != 3 ]]; then
+  echo 'usage: verify-clean-debian.sh TARGET SOURCE_ARCHIVE OUTPUT_DIR' >&2
+  echo '       verify-clean-debian.sh --artifact PACKAGE.deb' >&2
+  echo 'Run build verification inside a matching clean builder; no checks are silently skipped.' >&2
+  exit 2
+fi
+case "$1" in ubuntu24.04|ubuntu26.04|debian13) ;; *) echo 'unsupported Debian target' >&2; exit 2 ;; esac
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+exec "$ROOT/scripts/build-native.sh" "$@"

@@ -9,22 +9,61 @@ use crate::security::{is_protected, validate_package_id};
 
 pub struct PacmanProvider;
 
-const FORMAT: &str = "%n\t%v\t%a\t%s\t%d\t%p";
+/// `--print-format` is a transaction option and is rejected by `pacman -Q`.
+/// Query installed metadata with `-Qi` under LC_ALL=C instead.
+const QUERY_ARGS: &[&str] = &["-Qi", "--color", "never"];
+
+fn installed_bytes(value: &str) -> Option<u64> {
+    let mut fields = value.split_whitespace();
+    let size = fields.next()?.parse::<f64>().ok()?;
+    let multiplier = match fields.next()? {
+        "B" => 1.0,
+        "KiB" => 1024.0,
+        "MiB" => 1024.0 * 1024.0,
+        "GiB" => 1024.0 * 1024.0 * 1024.0,
+        "TiB" => 1024.0 * 1024.0 * 1024.0 * 1024.0,
+        _ => return None,
+    };
+    let bytes = size * multiplier;
+    (bytes.is_finite() && bytes >= 0.0 && bytes < u64::MAX as f64).then_some(bytes.round() as u64)
+}
 
 pub fn parse_pacman_query(out: &str) -> Vec<InstalledApplication> {
-    out.lines()
-        .filter_map(|line| {
-            let fields: Vec<&str> = line.split('\t').collect();
-            if fields.len() < 6 || fields[0].is_empty() || validate_package_id(fields[0]).is_err() {
+    out.split("\n\n")
+        .filter_map(|record| {
+            let mut fields = HashMap::<&str, String>::new();
+            let mut previous = "";
+            for line in record.lines() {
+                if line.starts_with(char::is_whitespace) {
+                    // Descriptions and packagers can wrap; dependency continuations
+                    // must not become part of either field.
+                    if matches!(previous, "Description" | "Packager") {
+                        if let Some(value) = fields.get_mut(previous) {
+                            value.push(' ');
+                            value.push_str(line.trim());
+                        }
+                    }
+                    continue;
+                }
+                if let Some((key, value)) = line.split_once(':') {
+                    previous = key.trim();
+                    fields.insert(previous, value.trim().to_string());
+                }
+            }
+            let name = fields.get("Name")?;
+            if validate_package_id(name).is_err() {
                 return None;
             }
-            let mut app = InstalledApplication::new(Source::Pacman, fields[0]);
-            app.version = Some(fields[1].to_string()).filter(|v| !v.is_empty());
-            app.architecture = Some(fields[2].to_string()).filter(|v| !v.is_empty());
-            app.installed_size = fields[3].parse::<u64>().ok();
-            app.description = Some(fields[4].to_string()).filter(|v| !v.is_empty());
-            app.publisher = Some(fields[5].to_string()).filter(|v| !v.is_empty());
-            app.system_protected = is_protected(fields[0]);
+            let mut app = InstalledApplication::new(Source::Pacman, name);
+            let value = |key| fields.get(key).cloned().filter(|value| !value.is_empty());
+            app.version = value("Version");
+            app.architecture = value("Architecture");
+            app.installed_size = fields
+                .get("Installed Size")
+                .and_then(|value| installed_bytes(value));
+            app.description = value("Description");
+            app.publisher = value("Packager");
+            app.system_protected = is_protected(name);
             app.removable = !app.system_protected;
             Some(app)
         })
@@ -75,10 +114,7 @@ impl PackageProvider for PacmanProvider {
     }
 
     fn scan(&self) -> Result<Vec<InstalledApplication>, String> {
-        Ok(parse_pacman_query(&run(
-            "pacman",
-            &["-Q", "--print-format", FORMAT],
-        )?))
+        Ok(parse_pacman_query(&run("pacman", QUERY_ARGS)?))
     }
 
     fn uninstall_argv(&self, package: &str, clean: bool) -> Vec<String> {
@@ -138,13 +174,78 @@ mod tests {
     #[test]
     fn parses_pacman_inventory() {
         let apps = parse_pacman_query(
-            "firefox\t128.0-1\tx86_64\t250000000\tWeb browser\tArch Linux\nlibfoo\t1-2\tx86_64\t1000\tLibrary\tArch Linux\n",
+            "Name            : firefox\nVersion         : 2:128.0-1\nDescription     : Web browser: desktop\n                  with wrapped description\nArchitecture    : x86_64\nInstalled Size  : 250.00 MiB\nPackager        : Arch Linux <packager@example.org>\nOptional Deps   : speech-dispatcher: text-to-speech\n                  hunspell: spell checking\n\nName            : libfoo\nVersion         : 1-2\nDescription     : Library\nArchitecture    : x86_64\nInstalled Size  : 1.00 KiB\nPackager        : Arch Linux\n",
         );
         assert_eq!(apps.len(), 2);
         assert_eq!(apps[0].source, Source::Pacman);
-        assert_eq!(apps[0].version.as_deref(), Some("128.0-1"));
-        assert_eq!(apps[0].installed_size, Some(250_000_000));
+        assert_eq!(apps[0].version.as_deref(), Some("2:128.0-1"));
+        assert_eq!(apps[0].installed_size, Some(250 * 1024 * 1024));
+        assert_eq!(
+            apps[0].description.as_deref(),
+            Some("Web browser: desktop with wrapped description")
+        );
+        assert_eq!(
+            apps[0].publisher.as_deref(),
+            Some("Arch Linux <packager@example.org>")
+        );
+        assert_eq!(apps[1].installed_size, Some(1024));
         assert_eq!(apps[0].category, Category::Unknown);
+    }
+
+    #[test]
+    fn rejects_malformed_inventory_and_preserves_unknown_size() {
+        let apps = parse_pacman_query("Name : bad/name\nVersion : 1\n\nName : pacman\nVersion : 7.1.0-1\nInstalled Size : unknown\n\nName : editor\nVersion : 1\nInstalled Size : 1.50 KiB\n");
+        assert_eq!(apps.len(), 2);
+        assert_eq!(apps[0].installed_size, None);
+        assert!(apps[0].system_protected);
+        assert!(!apps[0].removable);
+        assert_eq!(apps[1].installed_size, Some(1536));
+        assert_eq!(installed_bytes("NaN MiB"), None);
+        assert_eq!(installed_bytes("-1 MiB"), None);
+        assert_eq!(installed_bytes("9e99 GiB"), None);
+    }
+
+    #[test]
+    fn reads_real_pacman_inventory_from_an_isolated_database_when_available() {
+        if !which("pacman") {
+            return;
+        }
+        let unique = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!("lam-pacman-{}-{unique}", std::process::id()));
+        let local = root.join("local");
+        let package = local.join("vin-fixture-2:1.2.3-1");
+        std::fs::create_dir_all(&package).unwrap();
+        std::fs::write(local.join("ALPM_DB_VERSION"), "9\n").unwrap();
+        std::fs::write(package.join("desc"), "%NAME%\nvin-fixture\n\n%VERSION%\n2:1.2.3-1\n\n%BASE%\nvin-fixture\n\n%DESC%\nRead only fixture: package inventory\n\n%ARCH%\nx86_64\n\n%SIZE%\n1536\n\n%PACKAGER%\nVIN test <release@example.org>\n\n%LICENSE%\nMIT\n\n").unwrap();
+        let output = crate::provider::host_command("pacman")
+            .arg("--dbpath")
+            .arg(&root)
+            .args(QUERY_ARGS)
+            .env("LC_ALL", "C")
+            .output()
+            .unwrap();
+        std::fs::remove_dir_all(root).unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let apps = parse_pacman_query(&String::from_utf8(output.stdout).unwrap());
+        assert_eq!(apps.len(), 1);
+        assert_eq!(apps[0].package_name.as_deref(), Some("vin-fixture"));
+        assert_eq!(apps[0].version.as_deref(), Some("2:1.2.3-1"));
+        assert_eq!(apps[0].installed_size, Some(1536));
+        assert_eq!(
+            apps[0].description.as_deref(),
+            Some("Read only fixture: package inventory")
+        );
+        assert_eq!(
+            apps[0].publisher.as_deref(),
+            Some("VIN test <release@example.org>")
+        );
     }
 
     #[test]

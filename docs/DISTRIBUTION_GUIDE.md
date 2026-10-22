@@ -1,5 +1,10 @@
 # VIN-LinuxManager distribution and store guide
 
+> v0.1.1 uses the [current publishing procedure](PUBLISHING_V0.1.1.md)
+> and [installation guide](INSTALL.md). The older manual examples below are
+> retained as historical context; use the current offline source builder,
+> distro matrix and generated AUR recipe for new releases.
+
 This guide explains how to turn a tagged VIN-LinuxManager release into native
 packages, Flatpak/Snap artifacts, repository metadata, and a staged public
 release.

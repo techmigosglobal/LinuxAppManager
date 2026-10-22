@@ -1,5 +1,12 @@
 # VIN-LinuxManager publishing runbook
 
+> For v0.1.1, follow [PUBLISHING_V0.1.1.md](PUBLISHING_V0.1.1.md).
+> The historical v0.1.0 commands below predate the native builder matrix,
+> signed APT repository and the current Flathub policy. In particular, the
+> registered Snap identity is `vin-linux-app-manager`; do not register or upload
+> under the old example name. Do not use the old generated Flatpak submission
+> instructions as evidence of current eligibility.
+
 This runbook is the practical sequence for publishing VIN-LinuxManager after
 the first public release. It separates artifact stores from software centers
 that index package repositories and AppStream metadata.

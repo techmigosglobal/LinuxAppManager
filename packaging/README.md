@@ -1,7 +1,7 @@
 # Distribution packaging
 
-The detailed release workflow is in
-[`docs/DISTRIBUTION_GUIDE.md`](../docs/DISTRIBUTION_GUIDE.md).
+The current release workflow is in
+[`docs/PUBLISHING_V0.1.1.md`](../docs/PUBLISHING_V0.1.1.md).
 
 VIN-LinuxManager is a host package-management application. Native Debian,
 RPM, and Arch packages are the authoritative operational artifacts because they
@@ -26,14 +26,14 @@ Each native recipe installs:
 Build recipes:
 
 - `debian/` for Debian/Ubuntu;
-- `rpm/linux-app-manager.spec` for Fedora/openSUSE-style RPM builds;
-- `arch/PKGBUILD` for Arch-based repositories;
+- `rpm/linux-app-manager.spec` for tested Fedora targets;
+- `arch/PKGBUILD.in`, rendered with the actual source checksum, for Arch;
 - `snap/snapcraft.yaml` and `flatpak/*.yml.in` for sandboxed packaging review.
 
 Before a store submission, confirm the maintainer/support metadata, build from
 a clean tagged source archive, sign the package and checksum files, and run
-`scripts/release-audit.sh`. On a Docker-enabled release workstation, run
-`scripts/verify-clean-debian.sh` as well; it builds the Debian package in the
-pinned Ubuntu image and rejects incomplete or contaminated package contents.
-The RPM, Arch, Snap, and Flatpak recipes still require their respective
-distro/store builders before publication.
+`scripts/release-audit.sh`. Use the release workflow's preflight mode to build
+each native target in its own distribution image and test installation in a
+fresh runtime container. `scripts/verify-clean-debian.sh --artifact FILE.deb`
+checks a built package's contents. Desktop VM acceptance and store reviews
+remain separate gates before public promotion.

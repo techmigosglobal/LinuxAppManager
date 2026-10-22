@@ -2,7 +2,7 @@ use lam_core::cleanup::inspect as inspect_cleanup;
 use lam_core::duplicates::find_duplicates;
 use lam_core::history::{OperationInput, StateStore};
 use lam_core::model::{InstalledApplication, Source};
-use lam_core::provider::PackageProvider;
+use lam_core::provider::{host_command, PackageProvider};
 use lam_core::providers::{
     AppImageProvider, AptProvider, DnfProvider, FlatpakProvider, ManualProvider, PacmanProvider,
     SnapProvider,
@@ -11,7 +11,6 @@ use lam_core::scanner::{scan_all, ScanReport};
 use lam_core::security::host_mutations_allowed;
 use lam_core::util::human_size;
 use serde_json::json;
-use std::process::Command;
 
 const HELP: &str = "lam — VIN-LinuxManager Linux software manager (core CLI)
 
@@ -278,7 +277,7 @@ fn main() {
                         eprintln!("Cleanup returned an empty command.");
                         std::process::exit(2);
                     };
-                    let status = match Command::new(program)
+                    let status = match host_command(program)
                         .args(&plan[1..])
                         .env("LC_ALL", "C")
                         .status()
@@ -515,7 +514,7 @@ fn main() {
                         std::process::exit(1);
                     }
                 };
-                let mut cmd = Command::new("/usr/bin/pkexec");
+                let mut cmd = host_command("/usr/bin/pkexec");
                 cmd.arg(executable).args(plan.argv.iter().skip(1));
                 cmd
             } else {
@@ -523,7 +522,7 @@ fn main() {
                     eprintln!("The provider returned an empty uninstall plan.");
                     std::process::exit(1);
                 };
-                let mut cmd = Command::new(executable);
+                let mut cmd = host_command(executable);
                 cmd.args(plan.argv.iter().skip(1));
                 cmd
             };

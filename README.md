@@ -37,6 +37,11 @@ Build the CLI with `cargo build --release --locked` · Try: `target/release/lam 
 
 ## Website
 
+Version 0.1.1 prepares native Ubuntu/Debian/Fedora/Arch distribution and a signed
+APT repository. See the [publishing procedure](docs/PUBLISHING_V0.1.1.md),
+[channel status](docs/PUBLISHING_STATUS.md), and [installation guide](docs/INSTALL.md).
+An artifact build or recipe does not imply a public store listing.
+
 The static product website lives in [`website/`](website/). Preview it with
 `python3 -m http.server 4173 --directory website`; the GitHub Pages workflow
 publishes it from `main` after the repository’s Pages setting is enabled.

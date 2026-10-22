@@ -1,0 +1,19 @@
+Native release binary builds use scripts/build-native.sh inside an actual
+Ubuntu 24.04, Ubuntu 26.04 or Debian 13 builder. Rust dependencies are vendored in
+the release source archive; cargo always uses --locked --offline. Build-Depends
+are checked without dpkg-buildpackage -d.
+
+Ubuntu 24.04's archive compiler is too old for this application. The private
+release builder packages the complete pinned upstream Rust 1.90.0 toolchain
+using scripts/package-rust-toolchain.sh. This actual build-only Debian package
+provides versioned cargo/rustc dependencies, installs under /opt and is never a
+runtime dependency or uploaded to the application APT repository. All remaining
+Build-Depends must be installed normally. It is not an official Debian/Ubuntu
+archive build method: official archive submission requires their approved Rust
+and crate packaging and a separate maintainer review.
+
+The generic release source archive has a versioned linux-app-manager-VERSION
+root, vendor/, .cargo/config.toml and source-origin.json. For distro-specific
+source package construction, name it linux-app-manager_VERSION.orig.tar.gz;
+the Debian packaging format is 3.0 (quilt). Binary release versions add -1~SUITE
+so each supported distribution build has a distinct filename and package version.

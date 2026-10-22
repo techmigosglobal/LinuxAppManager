@@ -3,8 +3,16 @@
 %:
 	dh $@
 
+# Vendored registry archives contain checksum-tracked Cargo.toml.orig files.
+# dh_clean's generic backup deletion must never mutate the offline sources.
+override_dh_clean:
+	dh_clean -Xvendor/
+
 override_dh_auto_build:
-	cargo build --release --locked --bin lam
+	cargo build --release --locked --offline --bin lam
+
+override_dh_auto_test:
+	cargo test --all-targets --locked --offline
 
 override_dh_auto_install:
 	install -D -m 0755 target/release/lam debian/linux-app-manager/usr/lib/linux-app-manager/lam
@@ -14,3 +22,13 @@ override_dh_auto_install:
 	install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.metainfo.xml debian/linux-app-manager/usr/share/metainfo/io.github.techmigosglobal.LinuxAppManager.metainfo.xml
 	install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.svg debian/linux-app-manager/usr/share/icons/hicolor/scalable/apps/io.github.techmigosglobal.LinuxAppManager.svg
 	install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.png debian/linux-app-manager/usr/share/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
+	install -d debian/linux-app-manager/usr/share/doc/linux-app-manager
+	cp -a THIRD_PARTY_LICENSES debian/linux-app-manager/usr/share/doc/linux-app-manager/
+	install -D -m 0644 LICENSE debian/linux-app-manager/usr/share/doc/linux-app-manager/LICENSE
+	install -D -m 0644 README.md debian/linux-app-manager/usr/share/doc/linux-app-manager/README.md
+
+override_dh_compress:
+	dh_compress -XLICENSE -XTHIRD_PARTY_LICENSES
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
