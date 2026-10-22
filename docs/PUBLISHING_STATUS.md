@@ -47,11 +47,26 @@ Hosted builder evidence:
   immutable source: 1,252 host packages inventoried, bundled GUI launched and
   host removal refused. These remain automated checks, not desktop VM acceptance.
 - Download verification found GitHub changed `~` to `.` in Debian asset names
-  after signing. The draft requires filename metadata repair before promotion.
-  The repair verifies every original signature and package checksum, preserves
-  the immutable tag and binary bytes, and re-signs only the corrected manifest
-  and checksum list. Future uploads normalize names before signing and check
-  the hosted filename/size/digest inventory.
+  after signing. [PR #2](https://github.com/techmigosglobal/LinuxAppManager/pull/2)
+  fixed future upload normalization and hosted filename/size/digest checks.
+  The [draft metadata repair](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39805919359)
+  passed: every original signature and package checksum was verified before
+  re-signing the corrected manifest/checksum list. Nine download paths were
+  corrected; the immutable tag and all 47 artifact content hashes are unchanged.
+  Downloaded metadata signatures and the exact 98-asset hosted inventory were
+  independently verified against the committed production public key,
+  fingerprint `DE6DC03A1F11C0176188BBAC6E75CBCE90CE3F16`.
+- Signed installation evidence from the official draft was downloaded and
+  verified: GUI/inventory/uninstall success markers exist for all six native
+  targets, and generated signed APT installation passed all three suites.
+  The native release remains an installation-acceptance draft. Clean desktop
+  VM checks, normal AppImage/FUSE launches and public repository installation
+  have not been established by these container/Xvfb checks.
+- [Pages deployment](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39803466814)
+  stopped before deployment because no complete signed multi-suite native
+  release is public. This preserves the existing website; production APT is
+  not claimed as deployed. Dispatch Pages after desktop acceptance and draft
+  promotion.
 - [Corrected native preflight](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/39263702994)
   passed all six builds and package audits, plus fresh-container installation,
   real asynchronous GUI startup/inventory, sandbox refusal checks and uninstall.
@@ -180,7 +195,8 @@ See the [official classic-confinement review guidance](https://snapcraft.io/docs
 The implementation was merged through
 [PR #1](https://github.com/techmigosglobal/LinuxAppManager/pull/1) and tagged
 [`v0.1.1`](https://github.com/techmigosglobal/LinuxAppManager/tree/v0.1.1).
-Creating the tag starts draft artifact production; it does not establish public
-installation acceptance. The existing revision 3 Snap and builder report are
-retained in the ignored `dist/snap-builds/0.1.1/` directory and the linked Snap
-run. Credentials and private signing keys are not included.
+The signed native draft is built and its download metadata is verified; public
+installation acceptance is still pending. Revision 4 and its builder report are
+retained in ignored `dist/snap-builds/0.1.1-tag/`; historical revision 3 is kept
+separately in `dist/snap-builds/0.1.1/`. Credentials and private signing keys are
+not included.
