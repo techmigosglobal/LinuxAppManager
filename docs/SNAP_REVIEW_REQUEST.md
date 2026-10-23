@@ -1,5 +1,9 @@
 # Snap eligibility review draft
 
+Superseded on 2026-10-23 by [the submitted strict-confinement guidance
+request](SNAP_STRICT_REQUEST.md), currently awaiting forum moderation. This
+earlier classic-eligibility draft was not posted. Do not submit it as a duplicate.
+
 Updated 2026-10-22. This is a maintainer review draft, not a posted request or
 an assertion that classic confinement is approved.
 

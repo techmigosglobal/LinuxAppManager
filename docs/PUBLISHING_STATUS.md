@@ -1,6 +1,6 @@
 # Publication status
 
-Updated: 2026-10-22
+Updated: 2026-10-23
 
 ## v0.1.1 implementation and verification
 
@@ -87,6 +87,18 @@ Hosted builder evidence:
 
 Current account/store boundaries:
 
+- Forum authentication is now verified for `techmigos5`. On 2026-10-23 the
+  authorized request was submitted in `snapcraft`, emphasizing a strict,
+  read-only inventory edition and asking about appropriate PackageKit/metadata
+  interfaces. The forum displayed **Post Needs Approval**, with **1 post
+  pending**. There is no public topic URL or interface approval yet. See
+  [the submitted strict guidance request](SNAP_STRICT_REQUEST.md). Do not
+  duplicate the submission while moderation is pending.
+- Strict is the alternative under assessment, not a validated production build.
+  Current command-based providers require changes to avoid querying the snap
+  base as if it were the host. Privileged interfaces can still need review.
+  Host changes remain disabled; the current production manifest and uploaded
+  revision 4 have not been changed or re-uploaded by this assessment.
 - Desktop-session keyring access restored authenticated Snapcraft CLI access
   for publisher `techmigos`. The listing title, Utilities category, read-only
   description, website, GPL-3.0-or-later license, icon and three screenshots
@@ -103,9 +115,9 @@ Current account/store boundaries:
   attempt returned `resource-not-ready: Snap cannot be published due to
   inconsistent state`. Maintainer-reported forum approval has not yet been
   verified as approval of this snap's classic confinement. On 2026-10-22 the
-  authenticated CLI still reported no released revisions. The forum browser
-  session remained logged out; posting the authorized eligibility request needs
-  a successful forum sign-in.
+  authenticated CLI still reported no released revisions. The forum session
+  was logged out then; sign-in and the strict guidance submission are now
+  recorded above.
 - Candidate SHA-256: `b0189975685706da57f4b94806573271504c8bfdb98da430cb1824145e518eb9`.
   Its embedded source commit is `b2c643521f4bbf12df571823d8152caefc2f88d8`
   (the PR merge commit built by the linked Snap validation run).
