@@ -8,6 +8,12 @@ on:
         required: true
         default: v0.1.1
         type: string
+      target:
+        description: Validate one corrected guest or the complete supported matrix
+        required: true
+        default: all
+        type: choice
+        options: [all, ubuntu24.04, ubuntu26.04, debian13, fedora43, fedora44, arch]
 
 permissions:
   contents: read
@@ -28,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [ubuntu24.04, ubuntu26.04, debian13, fedora43, fedora44, arch]
+        target: ${{ fromJSON(inputs.target == 'all' && '["ubuntu24.04","ubuntu26.04","debian13","fedora43","fedora44","arch"]' || format('["{0}"]', inputs.target)) }}
     steps:
       - uses: actions/checkout@v4
         with:

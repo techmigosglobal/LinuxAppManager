@@ -88,9 +88,12 @@ if [[ -f packages/VIN-LinuxManager-0.1.1-x86_64.AppImage ]]; then
   echo 'Normal FUSE AppImage GUI launch passed'
   mkdir /tmp/lam-appimage-extracted
   (cd /tmp/lam-appimage-extracted && "$image" --appimage-extract > /tmp/lam-appimage-extract.log)
-  # Make FUSE unavailable for this launch; AppRun must work without the runtime.
+  # Hide the device after the normal launch; extraction must work without FUSE.
+  mv /dev/fuse /dev/fuse.acceptance-disabled
   dbus-run-session -- /tmp/lam-appimage-extracted/squashfs-root/AppRun --appimage-smoke-test
-  echo 'Extracted AppImage GUI launch passed without using FUSE'
+  [[ ! -e /dev/fuse ]]
+  mv /dev/fuse.acceptance-disabled /dev/fuse
+  echo 'Extracted AppImage GUI launch passed with the FUSE device unavailable'
 fi
 case "$target" in
   ubuntu*|debian*) apt-get remove -y linux-app-manager ;;
