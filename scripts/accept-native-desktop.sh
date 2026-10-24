@@ -4,6 +4,7 @@ set -euo pipefail
 [[ $# == 1 && $EUID == 0 && ${LAM_DISPOSABLE_VM:-} == 1 && -f /run/lam-disposable-acceptance && ! -f /.dockerenv ]]
 [[ $(systemd-detect-virt --vm) == qemu || $(systemd-detect-virt --vm) == kvm ]]
 target=$1
+fixture=hello
 cd /home/lamtest/acceptance
 source /etc/os-release
 case "$target:$ID:${VERSION_ID:-rolling}" in
@@ -30,14 +31,15 @@ case "$target" in
     ;;
   arch)
     provider=pacman
-    pacman -Syu --noconfirm --needed dbus xorg-server-xvfb openbox hello python-gobject polkit fuse2
+    fixture=tree
+    pacman -Syu --noconfirm --needed dbus xorg-server-xvfb openbox tree python-gobject polkit fuse2
     package=$(find packages -maxdepth 1 -name 'linux-app-manager-[0-9]*-x86_64-arch.pkg.tar.zst')
     pacman -U --noconfirm "$package"
     ;;
 esac
 [[ -f "$package" ]]
 systemctl start polkit
-runuser -u lamtest -- python3 accept-polkit-cancel.py
+runuser -u lamtest -- python3 accept-polkit-cancel.py "$fixture"
 export HOME=/root
 export XDG_STATE_HOME=/root/.local/state
 export XDG_RUNTIME_DIR=/run/lam-acceptance-runtime
@@ -50,7 +52,7 @@ for attempt in $(seq 1 100); do
   [[ ! -S /tmp/.X11-unix/X99 ]] || break
   sleep 0.1
 done
-dbus-run-session -- bash -c 'openbox >/tmp/lam-openbox.log 2>&1 & exec python3 accept-installed-gui.py "$1"' _ "$provider"
+dbus-run-session -- bash -c 'openbox >/tmp/lam-openbox.log 2>&1 & exec python3 accept-installed-gui.py "$1" "$2"' _ "$provider" "$fixture"
 lam=/usr/lib/linux-app-manager/lam
 "$lam" history --json > /tmp/history-before-upgrade.json
 # All channels must preserve history through package replacement. For the new

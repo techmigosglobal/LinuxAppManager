@@ -49,7 +49,7 @@ download names and source identity before copying packages into checksum-pinned
 official QEMU cloud images. Each guest installs a fresh X11/Openbox desktop
 session, exercises the installed GUI through Xvfb, cancels a real polkit
 authorization as an unprivileged user, and reviews/cancels then completes a
-disposable `hello` removal through the GUI as root. It checks history and
+disposable `hello` (`tree` on Arch) removal through the GUI as root. It checks history and
 application removal. These are automated desktop VM checks; they do not claim
 manual GNOME/Wayland coverage or a successful interactive password entry.
 

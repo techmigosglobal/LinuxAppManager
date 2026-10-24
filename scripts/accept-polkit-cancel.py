@@ -20,7 +20,9 @@ assert os.getuid() != 0, "authorization cancellation must run as an unprivileged
 assert Path("/run/lam-disposable-acceptance").is_file(), "disposable VM marker missing"
 lam = "/usr/lib/linux-app-manager/lam"
 inventory = json.loads(subprocess.check_output([lam, "list", "--all", "--json"]))
-fixture = next(app for app in inventory["apps"] if app.get("package_name") == "hello")
+fixture_name = sys.argv[1]
+assert fixture_name in {"hello", "tree"}
+fixture = next(app for app in inventory["apps"] if app.get("package_name") == fixture_name)
 bus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
 authority = Gio.DBusProxy.new_sync(
     bus, Gio.DBusProxyFlags.NONE, None, "org.freedesktop.PolicyKit1",

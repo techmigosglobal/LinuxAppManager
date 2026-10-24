@@ -42,7 +42,9 @@ until(lambda: window.apps and window.refresh_button.get_sensitive())
 provider = sys.argv[1]
 assert next(p for p in window.providers if p["source"] == provider)["healthy"]
 assert window.host_mutations_enabled
-fixture = next(app for app in window.apps if app.get("package_name") == "hello")
+fixture_name = sys.argv[2]
+assert fixture_name in {"hello", "tree"}
+fixture = next(app for app in window.apps if app.get("package_name") == fixture_name)
 clean = Gtk.CheckButton()
 
 
