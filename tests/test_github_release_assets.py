@@ -44,9 +44,13 @@ class AssetNamesTests(unittest.TestCase):
                 assets.check_hosted(directory, release)
             assets.prepare(directory)
             assets.check_hosted(directory, release)
+            release["draft"] = False
+            with self.assertRaisesRegex(ValueError, "requires a draft"):
+                assets.check_hosted(directory, release)
+            assets.check_hosted(directory, release, require_draft=False)
             release["assets"][0]["digest"] = "sha256:" + "0" * 64
             with self.assertRaisesRegex(ValueError, "digest mismatch"):
-                assets.check_hosted(directory, release)
+                assets.check_hosted(directory, release, require_draft=False)
 
     @unittest.skipUnless(shutil.which("gpg") and shutil.which("gpgv"), "GnuPG required")
     def test_repair_preserves_verified_binary_and_rejects_tampering(self):

@@ -32,8 +32,8 @@ def prepare(directory):
             path.rename(directory / name)
 
 
-def check_hosted(directory, release):
-    if not release["draft"]:
+def check_hosted(directory, release, require_draft=True):
+    if require_draft and not release["draft"]:
         raise ValueError("installation acceptance requires a draft")
     local = {path.name: path for path in directory.iterdir()}
     hosted = {asset["name"]: asset for asset in release["assets"]}
@@ -114,10 +114,13 @@ if __name__ == "__main__":
     parser.add_argument("--keyring", type=Path)
     parser.add_argument("--tag")
     parser.add_argument("--commit")
+    parser.add_argument("--allow-public", action="store_true",
+                        help="also validate public assets for installation acceptance")
     args = parser.parse_args()
     if args.mode == "prepare":
         prepare(args.directory)
     elif args.mode == "check-hosted":
-        check_hosted(args.directory, json.loads(args.release_json.read_text()))
+        check_hosted(args.directory, json.loads(args.release_json.read_text()),
+                     require_draft=not args.allow_public)
     else:
         print("Verified and normalized metadata paths:", repair(args.directory, args.keyring, args.tag, args.commit))

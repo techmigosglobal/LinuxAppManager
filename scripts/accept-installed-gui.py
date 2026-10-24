@@ -46,6 +46,7 @@ fixture_name = sys.argv[2]
 assert fixture_name in {"hello", "tree"}
 fixture = next(app for app in window.apps if app.get("package_name") == fixture_name)
 clean = Gtk.CheckButton()
+print(json.dumps({"reviewed_plan": window.run_cli_json("plan-remove", fixture["id"], "--json")}), flush=True)
 
 
 def confirmation():
@@ -55,7 +56,8 @@ def confirmation():
 
 def click_response(label):
     dialog = confirmation()
-    assert dialog.get_heading().startswith("Uninstall "), dialog.get_heading()
+    assert dialog.has_response("cancel") and dialog.has_response("uninstall"), (
+        dialog.get_heading(), dialog.get_body())
 
     def find(widget):
         def contains_label(node):
