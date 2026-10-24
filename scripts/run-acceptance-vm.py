@@ -68,7 +68,7 @@ with tempfile.TemporaryDirectory(prefix="lam-acceptance-", dir=os.environ.get("R
                 raise RuntimeError("guest boot/cloud-init timed out")
             upload = work / "acceptance"
             (upload / "packages").mkdir(parents=True)
-            for name in ["accept-native-desktop.sh", "accept-polkit-cancel.py", "accept-installed-gui.py", "smoke-installed.py"]:
+            for name in ["accept-native-desktop.sh", "accept-polkit-cancel.py", "accept-installed-gui.py", "accept-appimage-launch.py", "smoke-installed.py"]:
                 shutil.copy2(root / "scripts" / name, upload / name)
             if target.startswith(("ubuntu", "debian")):
                 pattern = f"linux-app-manager_*{target}*_amd64.deb"

@@ -58,7 +58,17 @@ def click_response(label):
     assert dialog.get_heading().startswith("Uninstall "), dialog.get_heading()
 
     def find(widget):
-        if isinstance(widget, Gtk.Button) and widget.get_label() == label:
+        def contains_label(node):
+            if isinstance(node, Gtk.Label) and node.get_text() == label:
+                return True
+            child = node.get_first_child()
+            while child is not None:
+                if contains_label(child):
+                    return True
+                child = child.get_next_sibling()
+            return False
+
+        if isinstance(widget, Gtk.Button) and (widget.get_label() == label or contains_label(widget)):
             return widget
         child = widget.get_first_child()
         while child is not None:
@@ -68,8 +78,8 @@ def click_response(label):
             child = child.get_next_sibling()
         return None
 
+    until(lambda: find(dialog) is not None and find(dialog).get_sensitive(), timeout=20)
     button = find(dialog)
-    assert button is not None and button.get_sensitive(), label
     # MessageDialog.response() emits only the signal. A real button click also
     # closes the window, which is the public user interaction being tested.
     button.emit("clicked")

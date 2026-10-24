@@ -19,20 +19,20 @@ case "$target" in
   ubuntu*|debian*)
     provider=apt
     apt-get update
-    DEBIAN_FRONTEND=noninteractive apt-get install -y dbus-x11 xvfb openbox hello python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 pkexec libfuse2t64
+    DEBIAN_FRONTEND=noninteractive apt-get install -y dbus-x11 xvfb x11-utils openbox hello python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 pkexec libfuse2t64
     package=$(find packages -maxdepth 1 -name "linux-app-manager_*${target}*_amd64.deb")
     apt-get install -y "$(realpath "$package")"
     ;;
   fedora*)
     provider=dnf
-    dnf install -y dbus-daemon xorg-x11-server-Xvfb openbox hello python3-gobject polkit fuse-libs
+    dnf install -y dbus-daemon xorg-x11-server-Xvfb xorg-x11-utils openbox hello python3-gobject polkit fuse-libs
     package=$(find packages -maxdepth 1 -name 'linux-app-manager-[0-9]*.x86_64.rpm')
     dnf install -y "$(realpath "$package")"
     ;;
   arch)
     provider=pacman
     fixture=tree
-    pacman -Syu --noconfirm --needed dbus xorg-server-xvfb openbox tree python-gobject polkit fuse2
+    pacman -Syu --noconfirm --needed dbus xorg-server-xvfb xorg-xwininfo openbox tree python-gobject polkit fuse2
     package=$(find packages -maxdepth 1 -name 'linux-app-manager-[0-9]*-x86_64-arch.pkg.tar.zst')
     pacman -U --noconfirm "$package"
     ;;
@@ -59,7 +59,7 @@ lam=/usr/lib/linux-app-manager/lam
 # RPM/Arch channels there is no previous published package: report reinstall
 # separately instead of inventing an upgrade from an unreleased version.
 case "$target" in
-  ubuntu*|debian*)
+  ubuntu24.04)
     if compgen -G 'previous/*.deb' > /dev/null; then
       apt-get install --allow-downgrades -y "$(realpath previous/*.deb)"
       dpkg-query -W -f='${Version}\n' linux-app-manager
@@ -68,6 +68,10 @@ case "$target" in
     else
       echo 'Missing previous signed DEB' >&2; exit 1
     fi
+    ;;
+  ubuntu26.04|debian13)
+    apt-get install --reinstall -y "$(realpath "$package")"
+    echo 'First compatible release: reinstall checked; legacy DEB requires unavailable policykit-1'
     ;;
   fedora*) dnf reinstall -y "$(realpath "$package")" ;;
   arch) pacman -U --noconfirm "$package" ;;
@@ -86,7 +90,7 @@ if [[ -f packages/VIN-LinuxManager-0.1.1-x86_64.AppImage ]]; then
   chmod +x "$image"
   modprobe fuse
   [[ -c /dev/fuse ]]
-  dbus-run-session -- "$image" --appimage-smoke-test
+  dbus-run-session -- bash -c 'openbox >/tmp/lam-appimage-openbox.log 2>&1 & exec python3 accept-appimage-launch.py "$1"' _ "$image"
   echo 'Normal FUSE AppImage GUI launch passed'
   mkdir /tmp/lam-appimage-extracted
   (cd /tmp/lam-appimage-extracted && "$image" --appimage-extract > /tmp/lam-appimage-extract.log)

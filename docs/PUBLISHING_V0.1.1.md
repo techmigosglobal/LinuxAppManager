@@ -53,10 +53,12 @@ disposable `hello` (`tree` on Arch) removal through the GUI as root. It checks h
 application removal. These are automated desktop VM checks; they do not claim
 manual GNOME/Wayland coverage or a successful interactive password entry.
 
-The Debian-family guests upgrade the previous publicly signed `v0.1.0` DEB to
-the signed current package and check history persistence. RPM and Arch have
-no previous public native release; they test reinstallation and history
-persistence, reported separately from upgrades. Ubuntu 24.04, Fedora 44 and
+Ubuntu 24.04 upgrades the previous publicly signed `v0.1.0` DEB to the signed
+current package and checks history persistence. Ubuntu 26.04 and Debian 13
+cannot install the legacy DEB because its `policykit-1` dependency is unavailable;
+the new package correctly depends on `pkexec`. Those suites, RPM and Arch have
+no compatible previous public native release; they test reinstallation and
+history persistence, reported separately from upgrades. Ubuntu 24.04, Fedora 44 and
 Arch also exercise normal FUSE and extracted AppImage GUI launches with runtime
 dependencies only. Image digests are pinned from the distributions' official
 HTTPS checksum metadata; changed image aliases fail closed and need a reviewed
