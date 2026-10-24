@@ -57,7 +57,6 @@ with open("/tmp/lam-polkit-result.txt", "w+") as output:
     child = subprocess.Popen(["bash", "-c", 'kill -STOP $$; exec "$@"', "_",
                               lam, "uninstall", fixture["id"], "--yes"],
                              stdout=output, stderr=subprocess.STDOUT)
-    registered = False
     try:
         deadline = time.monotonic() + 10
         while "\nState:\tT" not in Path(f"/proc/{child.pid}/status").read_text():
@@ -71,7 +70,6 @@ with open("/tmp/lam-polkit-result.txt", "w+") as output:
         authority.call_sync("RegisterAuthenticationAgent",
                             GLib.Variant("((sa{sv})ss)", (subject, "C", agent_path)),
                             Gio.DBusCallFlags.NONE, 30000, None)
-        registered = True
         child.send_signal(signal.SIGCONT)
         deadline = time.monotonic() + 120
         context = GLib.MainContext.default()
@@ -98,8 +96,8 @@ with open("/tmp/lam-polkit-result.txt", "w+") as output:
         if child.poll() is None:
             child.kill()
             child.wait()
-        if registered:
-            authority.call_sync("UnregisterAuthenticationAgent",
-                                GLib.Variant("((sa{sv})s)", (subject, agent_path)),
-                                Gio.DBusCallFlags.NONE, 30000, None)
+        # The subject has exited, so polkit can no longer resolve its owner for
+        # UnregisterAuthenticationAgent. Disconnecting the owning bus name
+        # removes its registrations without trying to resolve that dead PID.
         bus.unregister_object(registration)
+        bus.close_sync(None)
