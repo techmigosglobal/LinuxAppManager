@@ -2,6 +2,30 @@
 
 Updated: 2026-10-24
 
+## v0.1.2 corrective release
+
+Desktop VM acceptance found an actual Fedora blocker in `v0.1.1`: DNF5 emits
+the expected `--assumeno` abort diagnostic on stderr, whereas the provider
+checked only stdout. The GUI therefore refused a valid removal preview.
+The existing `v0.1.1` tag, signed draft and all package bytes are preserved;
+that draft must not be promoted as the full-feature Fedora release.
+
+The correction is prepared on `main` as `v0.1.2`. It checks both output streams,
+requires the expected non-mutating exit code, preserves the reviewed package
+list, and rejects authorization failures, incomplete previews and missing
+selected packages. A new immutable build and desktop acceptance are required
+before publication. No store approval or new public channel is claimed yet.
+
+Predecessor evidence remains useful for identifying regressions: Ubuntu 24.04,
+Ubuntu 26.04 and Debian 13 passed complete automated desktop VM acceptance in
+[this run](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/40095742622);
+Arch passed in [its focused run](https://github.com/techmigosglobal/LinuxAppManager/actions/runs/40096508013).
+Ubuntu 24.04 and Arch passed normal FUSE and extracted AppImage GUI launch with
+the FUSE device unavailable. The newer Debian suites cannot install the legacy
+`v0.1.0` DEB because its `policykit-1` dependency is unavailable; the new native
+packages correctly use `pkexec`. Ubuntu 24.04 passed an actual signed
+`v0.1.0` upgrade. These results do not substitute for testing the new release.
+
 ## v0.1.1 implementation and verification
 
 The native-first publishing implementation is prepared: six distro builders,
@@ -145,7 +169,7 @@ Current account/store boundaries:
 - Fedora Flatpak inclusion and default Ubuntu/Fedora archive discovery are
   separate maintainer reviews, not side effects of APT/Copr publication.
 
-Use [PUBLISHING_V0.1.1.md](PUBLISHING_V0.1.1.md) for the current release,
+Use [PUBLISHING_V0.1.2.md](PUBLISHING_V0.1.2.md) for the corrective release,
 acceptance, promotion and rollback procedure, and [INSTALL.md](INSTALL.md) for
 installation instructions after a channel becomes public.
 

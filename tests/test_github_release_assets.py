@@ -7,9 +7,11 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import tomllib
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+RELEASE_TAG = "v" + tomllib.loads((ROOT / "Cargo.toml").read_text())["package"]["version"]
 spec = importlib.util.spec_from_file_location("release_assets", ROOT / "scripts/github-release-assets.py")
 assets = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(assets)
@@ -58,7 +60,7 @@ class AssetNamesTests(unittest.TestCase):
             base = Path(work)
             home = base / "gnupg"
             home.mkdir(mode=0o700)
-            env = {**os.environ, "GNUPGHOME": str(home), "RELEASE_TAG": "v0.1.1"}
+            env = {**os.environ, "GNUPGHOME": str(home), "RELEASE_TAG": RELEASE_TAG}
 
             def run(*args, env=env):
                 return subprocess.check_output([str(a) for a in args], env=env, stderr=subprocess.PIPE, text=True)
@@ -87,11 +89,11 @@ class AssetNamesTests(unittest.TestCase):
                 binary = directory / original_name.replace("~", ".")
                 binary.write_bytes(b"tampered")
                 with self.assertRaisesRegex(ValueError, "original signed bytes changed"):
-                    assets.repair(directory, keyring, "v0.1.1", identity["commit"])
+                    assets.repair(directory, keyring, RELEASE_TAG, identity["commit"])
                 self.assertEqual((directory / "MANIFEST.json").read_bytes(), original_manifest)
                 binary.write_bytes(b"verified original binary")
                 original_signature = Path(str(binary) + ".asc").read_bytes()
-                self.assertEqual(assets.repair(directory, keyring, "v0.1.1", identity["commit"]), 1)
+                self.assertEqual(assets.repair(directory, keyring, RELEASE_TAG, identity["commit"]), 1)
                 for name in ("MANIFEST.json", "SHA256SUMS"):
                     run("gpg", "--batch", "--yes", "--armor", "--detach-sign", "--local-user", fingerprint,
                         "--output", directory / (name + ".asc"), directory / name)

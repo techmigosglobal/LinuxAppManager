@@ -5,16 +5,18 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import tomllib
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+VERSION = tomllib.loads((ROOT / "Cargo.toml").read_text())["package"]["version"]
 spec = importlib.util.spec_from_file_location("prepare_snap", ROOT / "scripts/prepare-snap.py")
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 
 class SnapPackagingTests(unittest.TestCase):
-    def fixture(self, root, development=False, version="0.1.1"):
+    def fixture(self, root, development=False, version=VERSION):
         for name in ("usr/bin/lam", "AppRun", "usr/share/linux-app-manager/AppImage.build.json",
                      "io.github.techmigosglobal.LinuxAppManager.desktop",
                      "io.github.techmigosglobal.LinuxAppManager.png"):
@@ -36,7 +38,7 @@ class SnapPackagingTests(unittest.TestCase):
             name, version = module.prepare(root, report, "a" * 40)
             import yaml
             metadata = yaml.safe_load((root / "meta/snap.yaml").read_text())
-            self.assertEqual((name, version), ("vin-linux-app-manager", "0.1.1"))
+            self.assertEqual((name, version), ("vin-linux-app-manager", VERSION))
             self.assertEqual(metadata["apps"][name]["command"], "AppRun")
             self.assertEqual(metadata["grade"], "stable")
             self.assertEqual(metadata["confinement"], "classic")
@@ -49,7 +51,7 @@ class SnapPackagingTests(unittest.TestCase):
             self.assertEqual(proof["source_commit"], "a" * 40)
 
     def test_rejects_development_runtime_and_version_mismatch(self):
-        for development, version in ((True, "0.1.1"), (False, "0.1.0")):
+        for development, version in ((True, VERSION), (False, "0.0.0")):
             with self.subTest(development=development, version=version), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 report = self.fixture(root, development, version)
@@ -62,7 +64,7 @@ class SnapPackagingTests(unittest.TestCase):
             report = self.fixture(root)
             with self.assertRaisesRegex(ValueError, "full source commit"):
                 module.prepare(root, report, "main")
-            report.write_text('{"version":"0.1.1","development_builder":false,"different":true}')
+            report.write_text(json.dumps({'version': VERSION, 'development_builder': False, 'different': True}))
             with self.assertRaisesRegex(ValueError, "unchanged production runtime"):
                 module.prepare(root, report, "a" * 40)
 

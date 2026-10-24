@@ -6,7 +6,7 @@ on:
       tag:
         description: Existing signed release tag to test without rebuilding
         required: true
-        default: v0.1.1
+        default: v0.1.2
         type: string
       target:
         description: Validate one corrected guest or the complete supported matrix
@@ -52,7 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p evidence
-          [[ "$RELEASE_TAG" == v0.1.1 ]]
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
           gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json apiUrl --jq .apiUrl > "$RUNNER_TEMP/release-api-url"
           gh api "$(cat "$RUNNER_TEMP/release-api-url")" > "$RUNNER_TEMP/hosted.json"
           if jq -e .draft "$RUNNER_TEMP/hosted.json" >/dev/null; then
@@ -69,7 +69,7 @@ jobs:
               name = asset['name']
               assert pathlib.Path(name).name == name and '\\' not in name
               url = asset['browser_download_url']
-              assert url == f'https://github.com/techmigosglobal/LinuxAppManager/releases/download/v0.1.1/{name}'
+              assert url == f"https://github.com/techmigosglobal/LinuxAppManager/releases/download/{release['tag_name']}/{name}"
               with urllib.request.urlopen(url, timeout=120) as response, (root / name).open('wb') as output:
                   while block := response.read(1024 * 1024):
                       output.write(block)

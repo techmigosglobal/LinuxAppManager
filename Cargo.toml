@@ -1,6 +1,6 @@
 [package]
 name = "linux-app-manager"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 rust-version = "1.90"
 description = "Unified installed-software manager for Linux (core library + lam CLI)"

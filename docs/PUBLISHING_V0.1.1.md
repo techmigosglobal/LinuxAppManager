@@ -1,5 +1,9 @@
 # v0.1.1 publishing procedure
 
+**Superseded for promotion:** desktop VM acceptance found a DNF5 removal-preview
+bug. Preserve this tag and draft. The corrective release is `v0.1.2`; follow
+[its procedure](PUBLISHING_V0.1.2.md).
+
 The release workflow has two modes. **Preflight** builds a source snapshot of
 the exact workflow commit, runs validation and builds all six native targets;
 it never creates a release. An official run requires immutable tag `v0.1.1`

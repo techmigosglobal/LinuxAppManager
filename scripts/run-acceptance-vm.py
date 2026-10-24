@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -15,6 +16,8 @@ import urllib.request
 root = Path(__file__).resolve().parent.parent
 target, release_dir, evidence_dir = sys.argv[1:]
 release = Path(release_dir).resolve()
+version = json.loads((release / "MANIFEST.json").read_text())["version"]
+assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version)
 evidence = Path(evidence_dir).resolve()
 evidence.mkdir(parents=True, exist_ok=True)
 images = json.loads((root / "packaging/acceptance-images.json").read_text())
@@ -80,7 +83,7 @@ with tempfile.TemporaryDirectory(prefix="lam-acceptance-", dir=os.environ.get("R
             assert len(matches) == 1, matches
             shutil.copy2(matches[0], upload / "packages" / matches[0].name)
             if target in {"ubuntu24.04", "fedora44", "arch"}:
-                appimage = release / "VIN-LinuxManager-0.1.1-x86_64.AppImage"
+                appimage = release / f"VIN-LinuxManager-{version}-x86_64.AppImage"
                 assert appimage.is_file()
                 shutil.copy2(appimage, upload / "packages" / appimage.name)
             if target.startswith(("ubuntu", "debian")):

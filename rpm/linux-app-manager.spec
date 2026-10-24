@@ -1,5 +1,5 @@
 Name:           linux-app-manager
-Version:        0.1.1
+Version:        0.1.2
 Release:        1%{?dist}
 Summary:        VIN-LinuxManager safe cross-source Linux software manager
 License:        GPL-3.0-or-later
@@ -62,6 +62,9 @@ install -D -m 0644 packaging/io.github.techmigosglobal.LinuxAppManager.png %{bui
 %{_datadir}/icons/hicolor/512x512/apps/io.github.techmigosglobal.LinuxAppManager.png
 
 %changelog
+* Sat Oct 24 2026 VIN-LinuxManager maintainers <Vin-Linux-App-Manager@techmigos.com> - 0.1.2-1
+- Accept complete DNF5 removal previews from separate output streams
+
 * Mon Oct 19 2026 VIN-LinuxManager maintainers <Vin-Linux-App-Manager@techmigos.com> - 0.1.1-1
 - Build locked vendored sources offline and include license and documentation
 

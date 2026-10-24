@@ -85,8 +85,10 @@ for sandbox in SNAP FLATPAK_ID; do
   fi
   grep -q 'disabled in sandboxed builds' /tmp/lam-sandbox-result
 done
-if [[ -f packages/VIN-LinuxManager-0.1.1-x86_64.AppImage ]]; then
-  image=$(realpath packages/VIN-LinuxManager-0.1.1-x86_64.AppImage)
+mapfile -t images < <(find packages -maxdepth 1 -name 'VIN-LinuxManager-*-x86_64.AppImage')
+if (( ${#images[@]} )); then
+  [[ ${#images[@]} == 1 ]]
+  image=$(realpath "${images[0]}")
   chmod +x "$image"
   [[ -d /sys/module/fuse ]] || modprobe fuse
   [[ -c /dev/fuse ]]

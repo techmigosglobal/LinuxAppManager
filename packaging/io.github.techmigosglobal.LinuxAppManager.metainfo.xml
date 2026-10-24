@@ -42,6 +42,9 @@
   </screenshots>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.1.2" date="2026-10-24">
+      <description><p>Fix DNF5 removal previews and validate native releases in disposable desktop virtual machines.</p></description>
+    </release>
     <release version="0.1.1" date="2026-10-21">
       <description><p>Native distribution packaging, signed repository support, and isolated portable runtime environments.</p></description>
     </release>

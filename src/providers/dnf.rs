@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 
 use crate::classifier::classify_rpm;
 use crate::model::{InstalledApplication, Source};
-use crate::provider::{run, which, PackageProvider};
+use crate::provider::{host_command, run, which, PackageProvider};
 use crate::security::{is_protected, validate_package_id};
 
 pub struct DnfProvider;
@@ -121,6 +121,34 @@ fn preview_contains_package(preview: &[String], package: &str) -> bool {
     })
 }
 
+fn checked_removal_preview(
+    stdout: &str,
+    stderr: &str,
+    exit_code: Option<i32>,
+    package: &str,
+) -> Result<Vec<String>, String> {
+    // DNF4 prints its abort marker on stdout; DNF5 reports the expected
+    // --assumeno cancellation on stderr. Authorization failures are different
+    // exit statuses and must never turn into an accepted transaction preview.
+    let complete = stdout.lines().chain(stderr.lines()).any(|line| {
+        matches!(
+            line.trim(),
+            "Operation aborted." | "Operation aborted by the user."
+        )
+    });
+    if exit_code != Some(1) || !complete {
+        return Err("DNF did not return a complete non-mutating removal preview".into());
+    }
+    let preview = parse_dnf_removal_preview(stdout);
+    if preview.is_empty() {
+        return Err("DNF returned no package list for the removal transaction".into());
+    }
+    if !preview_contains_package(&preview, package) {
+        return Err("DNF's removal preview did not include the selected package".into());
+    }
+    Ok(preview)
+}
+
 impl PackageProvider for DnfProvider {
     fn source(&self) -> Source {
         Source::Dnf
@@ -168,21 +196,17 @@ impl PackageProvider for DnfProvider {
         if !std::path::Path::new("/usr/bin/pkexec").is_file() {
             return Err("pkexec is required for a DNF transaction preview".into());
         }
-        let output = run(
-            "/usr/bin/pkexec",
-            &["/usr/bin/dnf", "remove", "--assumeno", package],
-        )?;
-        if !output.contains("Operation aborted") {
-            return Err("DNF did not return a complete non-mutating removal preview".into());
-        }
-        let preview = parse_dnf_removal_preview(&output);
-        if preview.is_empty() {
-            return Err("DNF returned no package list for the removal transaction".into());
-        }
-        if !preview_contains_package(&preview, package) {
-            return Err("DNF's removal preview did not include the selected package".into());
-        }
-        Ok(preview)
+        let output = host_command("/usr/bin/pkexec")
+            .args(["/usr/bin/dnf", "remove", "--assumeno", package])
+            .env("LC_ALL", "C")
+            .output()
+            .map_err(|error| format!("could not start DNF transaction preview: {error}"))?;
+        checked_removal_preview(
+            &String::from_utf8_lossy(&output.stdout),
+            &String::from_utf8_lossy(&output.stderr),
+            output.status.code(),
+            package,
+        )
     }
 
     fn owners_of(&self, paths: &[String]) -> HashMap<String, String> {
@@ -251,5 +275,47 @@ mod tests {
             &parse_dnf_removal_preview(out),
             "firefox-128.1-1.el10.x86_64"
         ));
+    }
+
+    #[test]
+    fn accepts_dnf5_abort_on_stderr_without_losing_the_reviewed_packages() {
+        let table = "Package Arch Version Repository Size\nRemoving:\n hello x86_64 2.12.2-3.fc44 @fedora 68 KiB\nTransaction Summary:\n Removing: 1 package\n";
+        let package = "hello-2.12.2-3.fc44.x86_64";
+        assert_eq!(
+            checked_removal_preview(table, "Operation aborted by the user.\n", Some(1), package)
+                .unwrap(),
+            vec![package]
+        );
+        assert_eq!(
+            checked_removal_preview(
+                &format!("{table}Operation aborted.\n"),
+                "",
+                Some(1),
+                package
+            )
+            .unwrap(),
+            vec![package]
+        );
+        for code in [Some(0), Some(126), Some(127), None] {
+            assert!(checked_removal_preview(
+                table,
+                "Operation aborted by the user.\n",
+                code,
+                package
+            )
+            .is_err());
+        }
+        assert!(checked_removal_preview(table, "Request dismissed\n", Some(1), package).is_err());
+        assert!(
+            checked_removal_preview("", "Operation aborted by the user.\n", Some(1), package)
+                .is_err()
+        );
+        assert!(checked_removal_preview(
+            table,
+            "Operation aborted by the user.\n",
+            Some(1),
+            "other"
+        )
+        .is_err());
     }
 }
