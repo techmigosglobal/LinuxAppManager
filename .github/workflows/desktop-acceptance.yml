@@ -20,6 +20,10 @@ jobs:
   desktop:
     name: Desktop VM ${{ matrix.target }}
     runs-on: ubuntu-24.04
+    # GitHub exposes drafts only to callers with repository write access.
+    # This job only downloads releases; it never edits or publishes one.
+    permissions:
+      contents: write
     timeout-minutes: 65
     strategy:
       fail-fast: false
@@ -41,6 +45,7 @@ jobs:
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
+          mkdir -p evidence
           [[ "$RELEASE_TAG" == v0.1.1 ]]
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir "$RUNNER_TEMP/release"
           ./scripts/verify-release-signatures.sh packaging/vin-linuxmanager-release-public-key.asc "$RUNNER_TEMP/release"
@@ -54,7 +59,6 @@ jobs:
           gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json apiUrl --jq .apiUrl > "$RUNNER_TEMP/release-api-url"
           gh api "$(cat "$RUNNER_TEMP/release-api-url")" > "$RUNNER_TEMP/hosted.json"
           python3 scripts/github-release-assets.py check-hosted "$RUNNER_TEMP/release" --release-json "$RUNNER_TEMP/hosted.json"
-          mkdir -p evidence
           cp "$RUNNER_TEMP/release/MANIFEST.json" "$RUNNER_TEMP/release/SHA256SUMS" evidence/
       - name: Download and verify previous public DEB for upgrade acceptance
         if: startsWith(matrix.target, 'ubuntu') || matrix.target == 'debian13'
