@@ -88,7 +88,7 @@ done
 if [[ -f packages/VIN-LinuxManager-0.1.1-x86_64.AppImage ]]; then
   image=$(realpath packages/VIN-LinuxManager-0.1.1-x86_64.AppImage)
   chmod +x "$image"
-  modprobe fuse
+  [[ -d /sys/module/fuse ]] || modprobe fuse
   [[ -c /dev/fuse ]]
   dbus-run-session -- bash -c 'openbox >/tmp/lam-appimage-openbox.log 2>&1 & exec python3 accept-appimage-launch.py "$1"' _ "$image"
   echo 'Normal FUSE AppImage GUI launch passed'
