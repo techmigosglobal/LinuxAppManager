@@ -43,6 +43,26 @@ distribution: launch, provider inventory, authorization cancellation, reviewed
 disposable-package removal, operation history, upgrade, application uninstall,
 and AppImage on Ubuntu/Fedora/Arch. Preserve the previous signed release.
 
+Dispatch `desktop-acceptance.yml` on `main` with `tag=v0.1.1` to test the
+existing signed draft without rebuilding it. It verifies all release signatures,
+download names and source identity before copying packages into checksum-pinned
+official QEMU cloud images. Each guest installs a fresh X11/Openbox desktop
+session, exercises the installed GUI through Xvfb, cancels a real polkit
+authorization as an unprivileged user, and reviews/cancels then completes a
+disposable `hello` removal through the GUI as root. It checks history and
+application removal. These are automated desktop VM checks; they do not claim
+manual GNOME/Wayland coverage or a successful interactive password entry.
+
+The Debian-family guests upgrade the previous publicly signed `v0.1.0` DEB to
+the signed current package and check history persistence. RPM and Arch have
+no previous public native release; they test reinstallation and history
+persistence, reported separately from upgrades. Ubuntu 24.04, Fedora 44 and
+Arch also exercise normal FUSE and extracted AppImage GUI launches with runtime
+dependencies only. Image digests are pinned from the distributions' official
+HTTPS checksum metadata; changed image aliases fail closed and need a reviewed
+pin update. Only ephemeral guest SSH keys are used; no publishing credentials
+enter guests or evidence artifacts.
+
 Once source validation and automated package checks pass, merge the reviewed
 source, create/push the immutable `v0.1.1` tag, and let its workflow produce the
 signed draft for desktop installation acceptance, including AppImage for

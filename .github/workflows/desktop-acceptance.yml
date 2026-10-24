@@ -1,0 +1,82 @@
+name: Signed release desktop VM acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing signed release tag to test without rebuilding
+        required: true
+        default: v0.1.1
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-acceptance-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  desktop:
+    name: Desktop VM ${{ matrix.target }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [ubuntu24.04, ubuntu26.04, debian13, fedora43, fedora44, arch]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install VM host tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 qemu-utils cloud-image-utils openssh-client gnupg
+          if [[ -e /dev/kvm ]]; then sudo chmod 666 /dev/kvm; fi
+      - name: Download and verify existing signed release bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" == v0.1.1 ]]
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir "$RUNNER_TEMP/release"
+          ./scripts/verify-release-signatures.sh packaging/vin-linuxmanager-release-public-key.asc "$RUNNER_TEMP/release"
+          python3 - "$RUNNER_TEMP/release/MANIFEST.json" "$RELEASE_TAG" <<'PY'
+          import json, pathlib, subprocess, sys
+          manifest = json.loads(pathlib.Path(sys.argv[1]).read_text())
+          commit = subprocess.check_output(['git', 'rev-parse', f'refs/tags/{sys.argv[2]}^{{commit}}'], text=True).strip()
+          assert manifest['tag'] == sys.argv[2] and manifest['commit'] == commit
+          assert manifest['version'] == sys.argv[2].removeprefix('v')
+          PY
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json apiUrl --jq .apiUrl > "$RUNNER_TEMP/release-api-url"
+          gh api "$(cat "$RUNNER_TEMP/release-api-url")" > "$RUNNER_TEMP/hosted.json"
+          python3 scripts/github-release-assets.py check-hosted "$RUNNER_TEMP/release" --release-json "$RUNNER_TEMP/hosted.json"
+          mkdir -p evidence
+          cp "$RUNNER_TEMP/release/MANIFEST.json" "$RUNNER_TEMP/release/SHA256SUMS" evidence/
+      - name: Download and verify previous public DEB for upgrade acceptance
+        if: startsWith(matrix.target, 'ubuntu') || matrix.target == 'debian13'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download v0.1.0 --repo "$GITHUB_REPOSITORY" --pattern '*.deb*' --dir "$RUNNER_TEMP/previous"
+          export GNUPGHOME="$RUNNER_TEMP/previous-keyring"
+          install -d -m 700 "$GNUPGHOME"
+          trap 'gpgconf --kill all || true; rm -rf "$GNUPGHOME"' EXIT
+          gpg --batch --import packaging/vin-linuxmanager-release-public-key.asc
+          for package in "$RUNNER_TEMP/previous/"*.deb; do
+            gpg --batch --verify "$package.asc" "$package"
+          done
+      - name: Exercise the installed release in a fresh desktop VM
+        env:
+          TARGET: ${{ matrix.target }}
+        run: python3 scripts/run-acceptance-vm.py "$TARGET" "$RUNNER_TEMP/release" evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-vm-${{ matrix.target }}
+          path: evidence/
+          if-no-files-found: error

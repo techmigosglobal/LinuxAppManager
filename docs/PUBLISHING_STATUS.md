@@ -1,6 +1,6 @@
 # Publication status
 
-Updated: 2026-10-23
+Updated: 2026-10-24
 
 ## v0.1.1 implementation and verification
 
@@ -87,6 +87,13 @@ Hosted builder evidence:
 
 Current account/store boundaries:
 
+- On 2026-10-24 the authenticated forum displayed
+  [Account temporarily on hold](https://forum.snapcraft.io/t/account-temporarily-on-hold/53771).
+  It permits browsing but prevents replies and new topics pending staff review.
+  This is an account moderation notice, not approval of the submitted request,
+  classic confinement, or strict interfaces. Do not duplicate the held request
+  or use another account to bypass the restriction. Native release acceptance
+  continues independently on `main`.
 - Forum authentication is now verified for `techmigos5`. On 2026-10-23 the
   authorized request was submitted in `snapcraft`, emphasizing a strict,
   read-only inventory edition and asking about appropriate PackageKit/metadata

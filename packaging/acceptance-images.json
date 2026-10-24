@@ -1,0 +1,32 @@
+{
+  "ubuntu24.04": {
+    "url": "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img",
+    "algorithm": "sha256",
+    "digest": "04e8f2461a16a44e78a370284471f29616cdd9baf1893df25807b71f985b6c94"
+  },
+  "ubuntu26.04": {
+    "url": "https://cloud-images.ubuntu.com/releases/resolute/release/ubuntu-26.04-server-cloudimg-amd64.img",
+    "algorithm": "sha256",
+    "digest": "5645d0318ad21f643ebb1ac4567514620e9893380b07b0201fda163baa5b7eb5"
+  },
+  "debian13": {
+    "url": "https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2",
+    "algorithm": "sha512",
+    "digest": "16e0965312c56feb331049d45d2b1b5778f3f942a33d4300eedbb97527707f2bea87c0006f3e4cc7a25fadbff739c4e235a51fb9bcd1b66fd554f7f8e80ba45c"
+  },
+  "fedora43": {
+    "url": "https://download.fedoraproject.org/pub/fedora/linux/releases/43/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-43-1.6.x86_64.qcow2",
+    "algorithm": "sha256",
+    "digest": "846574c8a97cd2d8dc1f231062d73107cc85cbbbda56335e264a46e3a6c8ab2f"
+  },
+  "fedora44": {
+    "url": "https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-44-1.7.x86_64.qcow2",
+    "algorithm": "sha256",
+    "digest": "28680fe5b371a5a82ebf43a31926e086a168e59949d03969c5093e7071f90b7f"
+  },
+  "arch": {
+    "url": "https://geo.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg-20261015.611680.qcow2",
+    "algorithm": "sha256",
+    "digest": "08754e28d91b1680086c6211ef4df13559e766fff7cdb4006489b14b5d281f08"
+  }
+}
