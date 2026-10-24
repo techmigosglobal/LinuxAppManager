@@ -13,13 +13,13 @@ on:
         required: true
         default: all
         type: choice
-        options: [all, ubuntu24.04, ubuntu26.04, debian13, fedora43, fedora44, arch]
+        options: [all, fedora, ubuntu24.04, ubuntu26.04, debian13, fedora43, fedora44, arch]
 
 permissions:
   contents: read
 
 concurrency:
-  group: desktop-acceptance-${{ inputs.tag }}
+  group: desktop-acceptance-${{ inputs.tag }}-${{ inputs.target }}
   cancel-in-progress: false
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: ${{ fromJSON(inputs.target == 'all' && '["ubuntu24.04","ubuntu26.04","debian13","fedora43","fedora44","arch"]' || format('["{0}"]', inputs.target)) }}
+        target: ${{ fromJSON(inputs.target == 'all' && '["ubuntu24.04","ubuntu26.04","debian13","fedora43","fedora44","arch"]' || inputs.target == 'fedora' && '["fedora43","fedora44"]' || format('["{0}"]', inputs.target)) }}
     steps:
       - uses: actions/checkout@v4
         with:
