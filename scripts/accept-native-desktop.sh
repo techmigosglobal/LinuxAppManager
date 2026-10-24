@@ -25,7 +25,7 @@ case "$target" in
     ;;
   fedora*)
     provider=dnf
-    dnf install -y dbus-daemon xorg-x11-server-Xvfb xorg-x11-utils openbox hello python3-gobject polkit fuse-libs
+    dnf install -y dbus-daemon xorg-x11-server-Xvfb xwininfo openbox hello python3-gobject polkit fuse-libs
     package=$(find packages -maxdepth 1 -name 'linux-app-manager-[0-9]*.x86_64.rpm')
     dnf install -y "$(realpath "$package")"
     ;;
