@@ -53,9 +53,31 @@ def confirmation():
                  if isinstance(w, Adw.MessageDialog) and w.get_visible()), None)
 
 
+def click_response(label):
+    dialog = confirmation()
+    assert dialog.get_heading().startswith("Uninstall "), dialog.get_heading()
+
+    def find(widget):
+        if isinstance(widget, Gtk.Button) and widget.get_label() == label:
+            return widget
+        child = widget.get_first_child()
+        while child is not None:
+            found = find(child)
+            if found is not None:
+                return found
+            child = child.get_next_sibling()
+        return None
+
+    button = find(dialog)
+    assert button is not None and button.get_sensitive(), label
+    # MessageDialog.response() emits only the signal. A real button click also
+    # closes the window, which is the public user interaction being tested.
+    button.emit("clicked")
+
+
 window.request_uninstall(None, fixture, clean)
 until(lambda: confirmation() is not None)
-confirmation().response("cancel")
+click_response("Cancel")
 until(lambda: confirmation() is None)
 assert not getattr(window, "operation_running", False)
 assert any(app["id"] == fixture["id"]
@@ -65,7 +87,7 @@ assert not any(h["app_id"] == fixture["id"] and h["status"] == "success"
 # Re-enter the actual GUI transaction path, including the reviewed preview.
 window.request_uninstall(None, fixture, clean)
 until(lambda: confirmation() is not None)
-confirmation().response("uninstall")
+click_response("Uninstall")
 until(lambda: not window.operation_running and window.refresh_button.get_sensitive())
 assert not any(app["id"] == fixture["id"] for app in window.apps)
 history = window.run_cli_json("history", "--json")

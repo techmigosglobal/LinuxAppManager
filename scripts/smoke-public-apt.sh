@@ -60,6 +60,8 @@ apt-get install -y linux-app-manager
 apt-get update
 installed_version=$(dpkg-query -W -f='${Version}' linux-app-manager)
 [[ "$installed_version" == *"$suite" ]]
+candidate=$(LC_ALL=C apt-cache policy linux-app-manager | awk '/Candidate:/ {print $2; exit}')
+[[ "$candidate" == "$installed_version" ]]
 export HOME=/tmp/lam-public-install-home
 mkdir -p "$HOME"
 /usr/lib/linux-app-manager/lam list --all --json > /tmp/public-inventory.json
